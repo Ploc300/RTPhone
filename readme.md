@@ -20,6 +20,7 @@ Tous les appels passeront par un serveur d'appel.
 - Connection au serveur
 - Voir les personnes connectées
 - Gestionnaire des contacts
+- recuperer les information lier a un compte
 - Passer un appel
 - Recevoir un appel
 
