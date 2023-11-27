@@ -1,14 +1,18 @@
+import socket
+import threading as Thread
+import pyaudio
+import sys
 # ========== Import ==========
 
 
 
 
 # ========== Class ==========
-class Server:
+class Server(Thread):
     pass
 
 
-class ServerAppel:
+class ServerAppel(Thread):
     pass
 
 
