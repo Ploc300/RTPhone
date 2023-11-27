@@ -43,3 +43,22 @@ Tous les appels passeront par un serveur d'appel.
 - Attribution d'un numéro de téléphone si pas de compte
 - Gestion des utilisateurs
 - Intermédiare des appels
+
+
+
+## Avancement du projet
+
+### Séance 1 (20/11/2023)
+
+- Découverte des sujets
+- Choix du sujet
+
+### Séance 2 (21/11/2023)
+
+- Début du cahier des charges
+
+### Séance 3 (27/11/2023)
+
+- Fin du cahier des charges
+- Début du diagramme de classe
+
