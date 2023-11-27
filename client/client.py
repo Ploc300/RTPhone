@@ -1,10 +1,14 @@
+import socket
+import threading as Thread
+import pyaudio
+import sys
 # ========== Import ==========
 
 
 
 # ========== Class ==========
 
-class Client:
+class Client(Thread):
     pass
 
 # ========== Main ==========
