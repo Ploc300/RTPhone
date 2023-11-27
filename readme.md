@@ -43,4 +43,3 @@ Tous les appels passeront par un serveur d'appel.
 - Attribution d'un numéro de téléphone si pas de compte
 - Gestion des utilisateurs
 - Intermédiare des appels
-
