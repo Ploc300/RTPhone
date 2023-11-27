@@ -63,3 +63,48 @@ Tous les appels passeront par un serveur d'appel.
 - Fin du cahier des charges
 - Début du diagramme de classe
 
+
+
+
+
+
+
+## Diagramme de classe
+
+### Client
+
+**Classe** *: Client*
+Nom             | Type          | Description
+----            | ----          | ----
+\_\_init\_\_    | Constructeur  | Initialise les variables
+auth            | Méthode       | Authentifie le client
+connect         | Méthode       | Connecte le client au serveur
+disconnect      | Méthode       | Deconnecte le client du serveur
+send            | Méthode       | Envoie un message au serveur
+receive         | Méthode       | Recoit un message du serveur
+get\_phone      | Méthode       | Retourne le numéro de téléphone du client
+change\_phone   | Méthode       | Demande un changement de numéro de téléphone
+
+**Classe** *: Client\_GUI*
+Nom             | Type          | Description
+----            | ----          | ----
+\_\_init\_\_    | Constructeur  | Initialise les variables
+
+
+### Serveur
+
+**Classe** *: Server*
+Nom             | Type          | Description
+----            | ----          | ----
+\_\_init\_\_    | Constructeur  | Initialise les variables
+start           | Méthode       | Lance le serveur
+stop            | Méthode       | Arrête le serveur
+listen          | Méthode       | Ecoute les connexions entrantes
+send            | Méthode       | Envoie un message à un client
+receive         | Méthode       | Recoit un message d'un client
+auth            | Méthode       | Authentifie un client
+
+
+
+
+
