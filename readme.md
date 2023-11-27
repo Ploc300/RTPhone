@@ -17,23 +17,11 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Softphone
 
-<<<<<<< Updated upstream
-- Connexion au serveur
-- Création d'un compte
-- Connexion à un compte
-- Attribution d'un numéro de téléphone
-- Changement du numéro de téléphone
-- Appel d'un autre utilisateur
-- Réception d'un appel
-- Fonction basique d'appel
-- Changement de status (en ligne, occupé, absent, déconnecté)
-=======
 - Connection au serveur
 - Voir les personnes connectées
 - Gestionnaire des contacts
 - Passer un appel
 - Recevoir un appel
->>>>>>> Stashed changes
 
 ##### Fonctionnalités supplémentaires
 
@@ -47,17 +35,12 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Serveur
 
-<<<<<<< Updated upstream
 - Connexion des utilisateurs
 - Création d'un compte
 - Connexion à un compte
-- Attribution d'un numéro de téléphone automatiquement
 - Changement du numéro de téléphone sans conflit
 - Gestion des utilisateurs en ligne
-=======
 - Attribution d'un numéro de téléphone si pas de compte
 - Gestion des utilisateurs
-- Connexion des utilisateurs
 - Intermédiare des appels
->>>>>>> Stashed changes
 
