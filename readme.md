@@ -73,17 +73,27 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Client
 
-**Classe** *: Client*
+**Classe** *: Client_tcp*
 Nom             | Type          | Description
 ----            | ----          | ----
 \_\_init\_\_    | Constructeur  | Initialise les variables
 auth            | Méthode       | Authentifie le client
-connect         | Méthode       | Connecte le client au serveur
+connect_tcp     | Méthode       | Connecte le client au serveur tcp
 disconnect      | Méthode       | Deconnecte le client du serveur
 send            | Méthode       | Envoie un message au serveur
 receive         | Méthode       | Recoit un message du serveur
 get\_phone      | Méthode       | Retourne le numéro de téléphone du client
 change\_phone   | Méthode       | Demande un changement de numéro de téléphone
+
+**Classe** *: Client_udp*
+Nom             | Type          | Description
+----            | ----          | ----
+\_\_init\_\_    | Constructeur  | Initialise les variables
+connect_udp     | Méthode       | Connecte le client au serveur tcp
+disconnect      | Méthode       | Deconnecte le client du serveur
+send            | Méthode       | Envoie un message au serveur
+receive         | Méthode       | Recoit un message du serveur
+appele          | Méthode       | Recoit un message du serveur
 
 **Classe** *: Client\_GUI*
 Nom             | Type          | Description
