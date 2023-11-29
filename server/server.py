@@ -1,7 +1,7 @@
 # ========== Import ==========
 import socket
 from threading import Thread
-import pyaudio
+# import pyaudio
 import sys
 
 # ========== Constant ==========
@@ -59,7 +59,7 @@ class ServiceEcoute:
         debug(SUCCESS.format(success=f'Client connected: {addr[0]}:{addr[1]}'))
         return socket_echange
     
-class ServiceEchange(Thread):
+class ClientHandler(Thread):
     def __init__(self, socket_echange: socket) -> None:
         super().__init__()
         try:
@@ -80,12 +80,11 @@ class ServiceEchange(Thread):
     def run(self) -> None:
         msg_reception: str = ""
         msg_envoi: str
-        while msg_reception != "fin":
+        while not msg_reception.startwith(0x00):
             msg_reception = self.recevoir()
-            print(f'Received: {msg_reception}')
-            msg_envoi = (f'[{msg_reception}]')
+            print(f'Message reçu: {msg_reception}')
+            msg_envoi = input("Votre message: ")
             self.envoyer(msg_envoi)
-        self.envoyer("Fin de la connection")
         self.arret()
 
     def arret(self) -> None:
@@ -109,6 +108,8 @@ class ClientManager:
 
     def get_number_client(self) -> int:
         return len(self.__list_client)
+    
+
 
     
 
@@ -127,7 +128,7 @@ def main():
         if clientManager.get_number_client() < 10:
             socketClient: socket = serviceEcoute.attente()
 
-            socket_echange: ServiceEchange = ServiceEchange(socketClient)
+            socket_echange: ClientHandler = ClientHandler(socketClient)
 
             socket_echange.start()
 
