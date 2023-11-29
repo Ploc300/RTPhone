@@ -120,7 +120,7 @@ class ClientManager:
 
 # ========== Main ==========
 def main():
-    serviceEcoute: ServiceEcoute = ServiceEcoute('172.20.10.3', 5000, 10)
+    serviceEcoute: ServiceEcoute = ServiceEcoute('127.0.0.1', 5000, 10)
     clientManager: ClientManager = ClientManager()
 
     while True:
