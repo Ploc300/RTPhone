@@ -20,9 +20,12 @@ Tous les appels passeront par un serveur d'appel.
 - Connection au serveur
 - Voir les personnes connectées
 - Gestionnaire des contacts
-- recuperer les information lier a un compte
+- recuperer les information lier a notre compte
 - Passer un appel
 - Recevoir un appel
+- Fonctionalité telephonique de base (appeler, sonnerie, raccrocher, etc...)
+- ihm
+- Gerer les message du serveur
 
 ##### Fonctionnalités supplémentaires
 
@@ -30,6 +33,10 @@ Tous les appels passeront par un serveur d'appel.
 - Envoi de fichier
 - Envoi de message vocal
 - Conférence téléphonique
+- Gerer son status (en ligne, absent,...)
+- Ecoute telephonique (mise en ecoute) pour les admin
+- Historique des appels
+- appli de tel ?
 
 --------------------
 
@@ -44,7 +51,12 @@ Tous les appels passeront par un serveur d'appel.
 - Attribution d'un numéro de téléphone si pas de compte
 - Gestion des utilisateurs
 - Intermédiare des appels
+- Gestion des base de données
 
+#### Fonctions suplémentaire
+
+- Connexion securiser (mdp chiffrer, token)
+- ihm (web ou tkinter)
 
 
 ## Avancement du projet
@@ -60,8 +72,11 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Séance 3 (27/11/2023)
 
-- Fin du cahier des charges
+- Avancement du cahier des charges
 - Début du diagramme de classe
+
+### Séance 4 (01/12/2023)
+- Fin du cahier des charges
 
 
 
