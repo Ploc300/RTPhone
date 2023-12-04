@@ -1,12 +1,11 @@
 # ========== Import ==========
-import socket
+import socket, pyaudio, dotenv, os, json
 from threading import Thread
-import pyaudio
-import sys
 from authentification import auth
 
 # ========== Constant ==========
-DEBUG_STATUS: bool = True
+dotenv.load_dotenv()
+DEBUG_STATUS: bool = bool(os.getenv('DEBUG'))
 POSSIBLE_CODE: list = [str(i) if i > 10 else '0'+str(i) for i in range(0, 100)]
 
 # ========== Color ==========
@@ -141,12 +140,18 @@ class ClientHandler(Thread):
         code: str ='99'
         while not msg_reception[0:2] == '00': # Tant que le client n'a pas envoyé le code de fin
             buffer: str = self.recevoir()
-            code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+            code, message = buffer[0:2], buffer[3:].loads() # Récupération du code et du message
             if code in POSSIBLE_CODE: # Si le code est valide
                 match code:
                     case '99': # Initialisation du client
                         debug(INFO.format(info='Initializing client connection'))
                         break
+                    case '01': # Authentification
+                        debug(INFO.format(info='Authenticating client'))
+                        try:
+                            
+                            
+                        
                         
 
             else:

@@ -10,7 +10,8 @@
 - 7: Failed to encode message
 - 8: Failed to send message
 - 9: Failed to receive message
-- 10: Unknown code
+- 10: Unknown message code
+- 11: Failed to connect to database
 
 
 
@@ -21,4 +22,5 @@
 - 00: Terminate connection
 - 01: Connection request
 - 02: Get phone number
+- 03: Client authenticated
 - 99: Conversation not initialized
