@@ -1,7 +1,7 @@
 # ========== Import ==========
 import socket, pyaudio, json, dotenv, os
 from threading import Thread
-from authentification import auth
+from authentification import auth, generate_token
 from debug import debug, debug_verbose
 
 # ========== Constant ==========
@@ -25,9 +25,6 @@ INFO: str = '\033[96m[INFO]\033[0m {info}'
 class ListeningService:
     """
         Classe permettant de créer un serveur d'écoute sur un port donné
-
-        :param port: le port du serveur
-        :param max_client: le nombre maximum de client
     """
     def __init__(self, port: int, max_client: int) -> None:
         """
@@ -38,6 +35,8 @@ class ListeningService:
 
             :param port: le port du serveur
             :param max_client: le nombre maximum de client
+
+            :return: None
         """
         self.__port: int = port
         self.__max_client: int = max_client
@@ -69,6 +68,7 @@ class ListeningService:
     def wait(self) -> socket:
         """
             Attente des clients
+
             :return: le socket d'échange avec le client
         """
         debug(INFO.format(info='Waiting for client'))
@@ -92,6 +92,8 @@ class ClientHandler(Thread):
                 - Création du socket d'échange
 
             :param socket_echange: le socket d'échange avec le client
+
+            :return: None
         """
         super().__init__()
         try: # Initialisation du socket
@@ -107,6 +109,8 @@ class ClientHandler(Thread):
             Envoi un message au client
 
             :param msg: le message à envoyer
+
+            :return: None
         """
         try: # Encodage du message
             encoded_msg = msg.encode("utf-8")
@@ -138,6 +142,8 @@ class ClientHandler(Thread):
     def run(self) -> None:
         """
             Fonction principale du client
+
+            :return: None
         """
         msg_reception: str
         buffer: str
@@ -154,6 +160,7 @@ class ClientHandler(Thread):
                         debug(INFO.format(info='Authenticating client'))
                         try:
                             if auth(message['username'], message['password']):
+                                token: str = generate_token(message['username'], message['password'])
                                 self.send('03 Authentification success')
                             else:
                                 self.send('04 Authentification failed')
@@ -176,8 +183,12 @@ class ClientHandler(Thread):
     def arret(self) -> None:
         """
             Arrêt du client
+
+            :return: None
         """
         self.__socket_echange.close()
+        debug(INFO.format(info='Client disconnected'))
+        exit(0)
     
 class ClientManager:
     """
@@ -186,30 +197,38 @@ class ClientManager:
     def __init__(self) -> None:
         """
             Initialise le gestionnaire de client
+
+            :return: None
         """
         self.__list_client: list = []
 
     def add_client(self, client: socket) -> None:
         """
             Ajoute un client à la liste des clients
+
+            :param client: le client à ajouter
+
+            :return: None
         """
         self.__list_client.append(client)
 
     def get_number_client(self) -> int:
         """
             Retourne le nombre de client
+
+            :return: le nombre de client
         """
         return len(self.__list_client)
 
 
 # ========== Main ==========
 def main():
-    ListeningService: ListeningService = ListeningService('172.20.10.3', 5000, 10)
+    listening_socket: ListeningService = ListeningService(5000, 10)
     clientManager: ClientManager = ClientManager()
 
     while True:
         if clientManager.get_number_client() < 10:
-            socketClient: socket = ListeningService.wait()
+            socketClient: socket = listening_socket.wait()
 
             socket_echange: ClientHandler = ClientHandler(socketClient)
 

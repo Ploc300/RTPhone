@@ -1,9 +1,13 @@
 # ===== Import =====
 from db import Database
 from debug import debug
+import time, dotenv, os, json
+from Cryptodome.Cipher import AES
 
 # ========== Constant ==========
+dotenv.load_dotenv()
 BANNED_CHAR: list = [';', ':', '!', '?', ',', '(', ')', '[', ']', '{', '}', '<', '>', '/', '\\', '|', '`', '~', '#', '$', '%', '^', '&', '*', '-', '_', '+', '=', ' ']
+ENCRYPTION_KEY: str = str(os.getenv('ENCRYPTION_KEY'))
 
 # ========== Function ==========
 def auth(login: str, password: str) -> bool:
@@ -12,6 +16,7 @@ def auth(login: str, password: str) -> bool:
 
         :param login: le login de l'utilisateur
         :param password: le mot de passe de l'utilisateur
+
         :return: True si l'utilisateur est authentifié, False sinon
     """
     db = Database('Authentification')
@@ -30,6 +35,27 @@ def auth(login: str, password: str) -> bool:
                     debug(f'Failed to auth {login} with username')
     return _return
 
+def generate_token(login: str, password: str) -> bytes:
+    token = {
+        'login': login,
+        'password': password,
+        'time_limit': time.time() + 3600
+    }
+    token_str = json.dumps(token)
+    
+    cipher = AES.new(ENCRYPTION_KEY.encode('utf-8'), AES.MODE_EAX)
+    ciphertext, tag = cipher.encrypt_and_digest(token_str.encode('utf-8'))
+    
+    return ciphertext
 
+def check_token(token: bytes) -> bool:
+    cipher = AES.new(ENCRYPTION_KEY.encode('utf-8'), AES.MODE_CBC)
+    token_str = cipher.decrypt(token).decode('utf-8')
+    token = json.loads(token_str)
+    return time.time() < token['time_limit']
 
-print(auth('test', 'test'))
+# ========== Main ==========
+if __name__ == '__main__':
+    generated_token = generate_token('test', 'test')
+    print(generated_token)
+    print(check_token(generated_token))

@@ -74,7 +74,3 @@ class Database:
             debug(f'Failed to auth {login} with mail')
             debug_verbose(e)
         return _return
-
-db = Database('Test')
-db.connect()
-debug(db.auth_username('test', 'test'))
