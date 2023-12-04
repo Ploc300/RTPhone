@@ -49,7 +49,7 @@ if __name__ == "__main__":
         appele_udp: Appele_udp
         # initialisation
         ip_serveur = "172.20.10.3"
-        port_serveur = 12800
+        port_serveur = 5000
         # instanciation:
         appele_udp = Appele_udp(ip_serveur=ip_serveur, port_serveur=port_serveur)
         appele_udp.start()
