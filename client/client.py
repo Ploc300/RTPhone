@@ -108,14 +108,13 @@ class Client_udp(Thread):
                     self.__socket_echange.close()
                     print("Connexion fermée")
     def stop(self):
-        Saracroche = input('taper y pour racrocher')
-        if Saracroche == 'y':
-            self.__appel = False
-            self.__socket_echange.close()
-            print("Connexion fermée")
-        else:
-             time.sleep(1)
+        self.__appel = False
+        self.__socket_echange.close()
+        print("Connexion fermée")
 
+##interface graphique
+
+     
 # ========== Main ==========
 def main():
     # declaration des variables
