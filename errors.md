@@ -22,5 +22,6 @@
 - 00: Terminate connection
 - 01: Connection request
 - 02: Get phone number
-- 03: Client authenticated
+- 03: Authentication success
+- 04: Authentication failed
 - 99: Conversation not initialized

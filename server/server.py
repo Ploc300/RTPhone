@@ -1,11 +1,11 @@
 # ========== Import ==========
-import socket, pyaudio, dotenv, os, json
+import socket, pyaudio, json, dotenv, os
 from threading import Thread
 from authentification import auth
+from debug import debug, debug_verbose
 
 # ========== Constant ==========
 dotenv.load_dotenv()
-DEBUG_STATUS: bool = bool(os.getenv('DEBUG'))
 POSSIBLE_CODE: list = [str(i) if i > 10 else '0'+str(i) for i in range(0, 100)]
 
 # ========== Color ==========
@@ -18,11 +18,7 @@ INFO: str = '\033[96m[INFO]\033[0m {info}'
 
 
 # ========== Function ==========
-def debug(msg: str) -> None:
-    """
-        Affiche un message de debug
-    """
-    if DEBUG_STATUS: print(f'{DEBUG.format(debug=msg)}')
+
 
 
 # ========== Class ==========      
@@ -51,6 +47,7 @@ class ListeningService:
             debug(SUCCESS.format(success='Server socket created'))
         except Exception as e:
             debug(ERROR.format(error='Failed to create server socket'))
+            debug_verbose(e)
             exit(2)
 
         try: # Bind du socket
@@ -58,6 +55,7 @@ class ListeningService:
             debug(SUCCESS.format(success='Server socket binded'))
         except Exception as e:
             debug(ERROR.format(error='Failed to bind server socket'))
+            debug_verbose(e)
             exit(3)
 
         try: # Mise en écoute du socket
@@ -65,6 +63,7 @@ class ListeningService:
             debug(SUCCESS.format(success='Socket listening'))
         except Exception as e:
             debug(ERROR.format(error='Failed to listen socket'))
+            debug_verbose(e)
             exit(4)
 
     def wait(self) -> socket:
@@ -78,6 +77,7 @@ class ListeningService:
             return socket_echange
         except Exception as e:
             debug(ERROR.format(error='Failed to accept client'))
+            debug_verbose(e)
             exit(6)
     
 class ClientHandler(Thread):
@@ -99,6 +99,7 @@ class ClientHandler(Thread):
             debug(SUCCESS.format(success='Socket created'))
         except Exception as e:
             debug(ERROR.format(error='Failed to create socket for client'))
+            debug_verbose(e)
             exit(5)
 
     def send(self, msg: str) -> None:
@@ -111,11 +112,13 @@ class ClientHandler(Thread):
             encoded_msg = msg.encode("utf-8")
         except Exception as e:
             debug(ERROR.format(error='Failed to encode message'))
+            debug_verbose(e)
             exit(7)
         try: # Envoi du message
             self.__socket_echange.send(msg)
         except Exception as e:
             debug(ERROR.format(error='Failed to send message'))
+            debug_verbose(e)
             exit(8)
 
     def recevoir(self) -> str:
@@ -129,6 +132,7 @@ class ClientHandler(Thread):
             return msg.decode("utf-8")
         except Exception as e:
             debug(ERROR.format(error='Failed to receive message'))
+            debug_verbose(e)
             exit(9)
     
     def run(self) -> None:
@@ -149,11 +153,15 @@ class ClientHandler(Thread):
                     case '01': # Authentification
                         debug(INFO.format(info='Authenticating client'))
                         try:
+                            if auth(message['username'], message['password']):
+                                self.send('03 Authentification success')
+                            else:
+                                self.send('04 Authentification failed')
+                        except Exception as e:
+                            debug(ERROR.format(error='Failed to authenticate client'))
+                            debug_verbose(e)
+                            self.send('04 Authentification failed')
                             
-                            
-                        
-                        
-
             else:
                 debug(ERROR.format(error='Unknown code'))
                 try:
