@@ -1,11 +1,13 @@
 # ========== Import ==========
 import socket
 from threading import Thread
-# import pyaudio
+import pyaudio
 import sys
+from authentification import auth
 
 # ========== Constant ==========
 DEBUG_STATUS: bool = True
+POSSIBLE_CODE: list = [str(i) if i > 10 else '0'+str(i) for i in range(0, 100)]
 
 # ========== Color ==========
 ERROR: str = '\033[91m[ERROR]\033[0m {error}'
@@ -18,115 +20,183 @@ INFO: str = '\033[96m[INFO]\033[0m {info}'
 
 # ========== Function ==========
 def debug(msg: str) -> None:
+    """
+        Affiche un message de debug
+    """
     if DEBUG_STATUS: print(f'{DEBUG.format(debug=msg)}')
 
 
-# ========== Class ==========
-# class Server:
-#     def __init__(self) -> None:
-#         pass
-        
-class ServiceEcoute:
-    def __init__(self, host: str, port: int, max_client: int) -> None:
-        self.__host: str = host
+# ========== Class ==========      
+class ListeningService:
+    """
+        Classe permettant de créer un serveur d'écoute sur un port donné
+
+        :param port: le port du serveur
+        :param max_client: le nombre maximum de client
+    """
+    def __init__(self, port: int, max_client: int) -> None:
+        """
+            Initialise le serveur:
+                - Création du socket
+                - Bind du socket
+                - Mise en écoute du socket
+
+            :param port: le port du serveur
+            :param max_client: le nombre maximum de client
+        """
         self.__port: int = port
         self.__max_client: int = max_client
 
-        try: 
+        try: # Initialisation du socket
             self.__socket: socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             debug(SUCCESS.format(success='Server socket created'))
         except Exception as e:
             debug(ERROR.format(error='Failed to create server socket'))
             exit(2)
 
-        try: 
-            self.__socket.bind((self.__host, self.__port))
+        try: # Bind du socket
+            self.__socket.bind(('', self.__port))
             debug(SUCCESS.format(success='Server socket binded'))
         except Exception as e:
             debug(ERROR.format(error='Failed to bind server socket'))
             exit(3)
 
-        try: 
+        try: # Mise en écoute du socket
             self.__socket.listen(self.__max_client)
             debug(SUCCESS.format(success='Socket listening'))
         except Exception as e:
             debug(ERROR.format(error='Failed to listen socket'))
             exit(4)
 
-    def attente(self) -> socket:
+    def wait(self) -> socket:
+        """
+            Attente des clients
+            :return: le socket d'échange avec le client
+        """
         debug(INFO.format(info='Waiting for client'))
-        socket_echange, addr = self.__socket.accept()
-        debug(SUCCESS.format(success=f'Client connected: {addr[0]}:{addr[1]}'))
-        return socket_echange
+        try: # Attente des clients
+            socket_echange, addr = self.__socket.accept()
+            return socket_echange
+        except Exception as e:
+            debug(ERROR.format(error='Failed to accept client'))
+            exit(6)
     
 class ClientHandler(Thread):
+    """
+        Classe permettant de gérer un client
+
+        :param socket_echange: le socket d'échange avec le client
+    """
     def __init__(self, socket_echange: socket) -> None:
+        """
+            Initialise le client:
+                - Création du socket d'échange
+
+            :param socket_echange: le socket d'échange avec le client
+        """
         super().__init__()
-        try:
+        try: # Initialisation du socket
             self.__socket_echange: socket = socket_echange
             debug(SUCCESS.format(success='Socket created'))
         except Exception as e:
             debug(ERROR.format(error='Failed to create socket for client'))
             exit(5)
 
-    def envoyer(self, msg: str) -> None:
-        msg = msg.encode("utf-8")
-        self.__socket_echange.send(msg)
+    def send(self, msg: str) -> None:
+        """
+            Envoi un message au client
+
+            :param msg: le message à envoyer
+        """
+        try: # Encodage du message
+            encoded_msg = msg.encode("utf-8")
+        except Exception as e:
+            debug(ERROR.format(error='Failed to encode message'))
+            exit(7)
+        try: # Envoi du message
+            self.__socket_echange.send(msg)
+        except Exception as e:
+            debug(ERROR.format(error='Failed to send message'))
+            exit(8)
 
     def recevoir(self) -> str:
-        msg: bytes = self.__socket_echange.recv(1024)
-        return msg.decode("utf-8")
+        """
+            Recoit un message du client
+
+            :return: le message reçu
+        """
+        try: # Réception du message
+            msg: bytes = self.__socket_echange.recv(1024)
+            return msg.decode("utf-8")
+        except Exception as e:
+            debug(ERROR.format(error='Failed to receive message'))
+            exit(9)
     
     def run(self) -> None:
-        msg_reception: str = ""
-        msg_envoi: str
-        while not msg_reception.startwith(0x00):
-            msg_reception = self.recevoir()
-            print(f'Message reçu: {msg_reception}')
-            msg_envoi = input("Votre message: ")
-            self.envoyer(msg_envoi)
+        """
+            Fonction principale du client
+        """
+        msg_reception: str
+        buffer: str
+        code: str ='99'
+        while not msg_reception[0:2] == '00': # Tant que le client n'a pas envoyé le code de fin
+            buffer: str = self.recevoir()
+            code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+            if code in POSSIBLE_CODE: # Si le code est valide
+                match code:
+                    case '99': # Initialisation du client
+                        debug(INFO.format(info='Initializing client connection'))
+                        break
+                        
+
+            else:
+                debug(ERROR.format(error='Unknown code'))
+                try:
+                    self.send('00 Unknown code')
+                except Exception as e:
+                    debug(ERROR.format(error='Failed to send termination message'))
+                exit(10)
         self.arret()
 
-    def arret(self) -> None:
-        self.__socket_echange.close()
+    
 
-    def run(self) -> None:
-        while True:
-            msg = self.__socket_echange.recv(1024)
-            if msg == b'':
-                break
-            print(f'Message reçu: {msg.decode("utf-8")}')
-            self.__socket_echange.send(b'ok')
+    def arret(self) -> None:
+        """
+            Arrêt du client
+        """
         self.__socket_echange.close()
     
 class ClientManager:
+    """
+        Classe permettant de gérer les clients
+    """
     def __init__(self) -> None:
+        """
+            Initialise le gestionnaire de client
+        """
         self.__list_client: list = []
 
     def add_client(self, client: socket) -> None:
+        """
+            Ajoute un client à la liste des clients
+        """
         self.__list_client.append(client)
 
     def get_number_client(self) -> int:
+        """
+            Retourne le nombre de client
+        """
         return len(self.__list_client)
-    
-
-
-    
-
-
-
-# class ServerAppel(Thread):
-#     pass
 
 
 # ========== Main ==========
 def main():
-    serviceEcoute: ServiceEcoute = ServiceEcoute('127.0.0.1', 5000, 10)
+    ListeningService: ListeningService = ListeningService('172.20.10.3', 5000, 10)
     clientManager: ClientManager = ClientManager()
 
     while True:
         if clientManager.get_number_client() < 10:
-            socketClient: socket = serviceEcoute.attente()
+            socketClient: socket = ListeningService.wait()
 
             socket_echange: ClientHandler = ClientHandler(socketClient)
 

@@ -6,3 +6,19 @@
 - 3: Failed to bind socket
 - 4: Failed to listen
 - 5: Failed to create socket for client
+- 6: Failed to accept client
+- 7: Failed to encode message
+- 8: Failed to send message
+- 9: Failed to receive message
+- 10: Unknown code
+
+
+
+
+
+# Message codes
+
+- 00: Terminate connection
+- 01: Connection request
+- 02: Get phone number
+- 99: Conversation not initialized
