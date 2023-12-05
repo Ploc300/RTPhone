@@ -53,6 +53,7 @@ class Database:
         try:
             self.__cursor.execute(f'SELECT * FROM users WHERE name="{login}" AND password="{password}"')
             _return = True if self.__cursor.fetchone() else False
+            debug(f'Auth {login} with username')
         except Exception as e:
             debug(f'Failed to auth {login} with username')
             debug_verbose(e)
@@ -70,6 +71,7 @@ class Database:
         try:
             self.__cursor.execute(f'SELECT * FROM users WHERE email="{login}" AND password="{password}"')
             _return = True if self.__cursor.fetchone() else False
+            debug(f'Auth {login} with mail')
         except Exception as e:
             debug(f'Failed to auth {login} with mail')
             debug_verbose(e)
@@ -78,11 +80,54 @@ class Database:
     def add_token(self, token: bytes, tag: bytes, nonce: bytes) -> bool:
         _return: bool = False
         try:
-            self.__cursor.execute(f'INSERT INTO tokens VALUES ({token}, {tag}, {nonce})')
-            self.__connection.commit()
-            _return = True
+            self.__cursor.execute('INSERT INTO tokens VALUES (?, ?, ?)', (token, tag, nonce))
+            debug(f'Added token')
+            try:
+                self.__connection.commit()
+                debug(f'Committed token')
+                _return = True
+            except Exception as e:
+                debug(f'Failed to commit token')
+                debug_verbose(e)
         except Exception as e:
             debug(f'Failed to add token')
+            debug_verbose(e)
+        return _return
+    
+    def retrieve_token(self, token: bytes) -> (bool, tuple):
+        _return: bool = False
+        try:
+            self.__cursor.execute('SELECT * FROM tokens WHERE token=?', (token,))
+            result = self.__cursor.fetchone()
+        except Exception as e:
+            debug(f'Failed to retrieve token')
+            debug_verbose(e)
+        return result
+    
+    def remove_token(self, token: bytes) -> bool:
+        _return: bool = False
+        try:
+            self.__cursor.execute('DELETE FROM tokens WHERE token=?', (token,))
+            debug(f'Removed token')
+            try:
+                self.__connection.commit()
+                debug(f'Committed token')
+                _return = True
+            except Exception as e:
+                debug(f'Failed to commit token')
+                debug_verbose(e)
+        except Exception as e:
+            debug(f'Failed to remove token')
+            debug_verbose(e)
+        return _return
+    
+    def get_phone_number(self, username: str) -> str:
+        _return: str = ''
+        try:
+            self.__cursor.execute('SELECT phone_number FROM phone_number WHERE username=?', (username,))
+            _return = self.__cursor.fetchone()[0]
+        except Exception as e:
+            debug(f'Failed to get phone number')
             debug_verbose(e)
         return _return
         

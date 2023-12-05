@@ -24,4 +24,7 @@
 - 02: Get phone number
 - 03: Authentication success
 - 04: Authentication failed
+- 05: Send phone number
+- 07: Data is not json
+- 08: Token missing
 - 99: Conversation not initialized

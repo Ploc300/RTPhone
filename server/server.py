@@ -1,8 +1,11 @@
 # ========== Import ==========
-import socket, pyaudio, json, dotenv, os
+import socket, pyaudio, dotenv, os, base64
 from threading import Thread
-from authentification import auth, generate_token
+from authentification import auth, generate_token, check_token
 from debug import debug, debug_verbose
+from db import Database
+from json import loads, dumps
+
 
 # ========== Constant ==========
 dotenv.load_dotenv()
@@ -119,7 +122,7 @@ class ClientHandler(Thread):
             debug_verbose(e)
             exit(7)
         try: # Envoi du message
-            self.__socket_echange.send(msg)
+            self.__socket_echange.send(encoded_msg)
         except Exception as e:
             debug(ERROR.format(error='Failed to send message'))
             debug_verbose(e)
@@ -145,12 +148,20 @@ class ClientHandler(Thread):
 
             :return: None
         """
-        msg_reception: str
+        message: str
         buffer: str
         code: str ='99'
-        while not msg_reception[0:2] == '00': # Tant que le client n'a pas envoyé le code de fin
+        while not code == '00': # Tant que le client n'a pas envoyé le code de fin
             buffer: str = self.recevoir()
-            code, message = buffer[0:2], buffer[3:].loads() # Récupération du code et du message
+            code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+            try:
+                message = loads(message) # Décodage du message
+                debug(DEBUG.format(debug=f'Code: {code} | Message: {message}'))
+            except Exception as e:
+                debug(ERROR.format(error='Failed to decode message'))
+                debug_verbose(e)
+                self.send('07 Data is not JSON format')
+                exit(10)
             if code in POSSIBLE_CODE: # Si le code est valide
                 match code:
                     case '99': # Initialisation du client
@@ -160,15 +171,30 @@ class ClientHandler(Thread):
                         debug(INFO.format(info='Authenticating client'))
                         try:
                             if auth(message['username'], message['password']):
-                                token: str = generate_token(message['username'], message['password'])
-                                self.send('03 Authentification success')
+                                debug(INFO.format(info='Client authenticated'))
+                                data: dict = {'token': base64.b64encode(generate_token(message['username'], message['password'])).decode('utf-8')}
+                                self.send(f'03 {dumps(data)}')
                             else:
                                 self.send('04 Authentification failed')
                         except Exception as e:
                             debug(ERROR.format(error='Failed to authenticate client'))
                             debug_verbose(e)
                             self.send('04 Authentification failed')
-                            
+
+                    case '02': # Demande de son numéro de telephone
+                        debug(INFO.format(info='Client asked for phone number'))
+                        try:
+                            token, _ = check_token(message['token'])
+                        except KeyError:
+                            self.send('08 token missing')
+                            break
+                        if token:
+                            db = Database("retrieve Phone Number")
+                            data: dict = {'phone_number': db.get_phone_number(message['username'])}
+                            self.send(f'05 {dumps(data)}')
+
+                    case _:
+                        pass
             else:
                 debug(ERROR.format(error='Unknown code'))
                 try:
