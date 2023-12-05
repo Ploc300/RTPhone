@@ -128,6 +128,7 @@ listen          | Méthode       | Ecoute les connexions entrantes
 send            | Méthode       | Envoie un message à un client
 receive         | Méthode       | Recoit un message d'un client
 auth            | Méthode       | Authentifie un client
+echange         | Méthode       | Echange les informations entre deux clients
 
 
 
