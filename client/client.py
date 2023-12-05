@@ -66,7 +66,18 @@ class Client_tcp:
         self.send('05')
         nom = self.receive()
         return nom
-    
+
+"""""""""""""""""""""""""""""""""""""""""""""
+   _     _      _     _      _     _   
+  (c).-.(c)    (c).-.(c)    (c).-.(c)  
+   / ._. \      / ._. \      / ._. \   
+ __\( Y )/__  __\( Y )/__  __\( Y )/__ 
+(_.-/'-'\-._)(_.-/'-'\-._)(_.-/'-'\-._)
+   || U ||      || D ||      || P ||   
+ _.' `-' '._  _.' `-' '._  _.' `-' '._ 
+(.-./`-'\.-.)(.-./`-'\.-.)(.-./`-'\.-.)
+ `-'     `-'  `-'     `-'  `-'     `-' 
+"""""""""""""""""""""""""""""""""""""""""""""
 
 
 class Client_udp(Thread):
@@ -118,13 +129,11 @@ class Client_udp(Thread):
 # ========== Main ==========
 def main():
     # declaration des variables
-    ip_serveur: str = '172.20.10.3'
+    ip_serveur: str = '127.0.0.1'
     port_serveur: int = 5000
-    client: Client_tcp = None
-    client = Client_tcp(ip_serveur, port_serveur)
-    client.connect_tcp()
-    client.envoie('bonjour serveur')
-    print(client.receive())
+    client: Client_udp = None
+    client = Client_udp(ip_serveur, port_serveur)
+    client.start()
 
 
 
