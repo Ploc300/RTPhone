@@ -3,7 +3,7 @@ import socket
 from threading import Thread
 import sys
 import json
-
+from tkinter import *
 
 # ========== Class ==========
 
@@ -71,16 +71,23 @@ class Client_tcp:
 
 
 ##interface graphique
-
-     
+class Ihm:
+    def __init__(self,root) -> None:
+        #setting title
+        root.title("undefined")
+        #setting window size
+        width=600
+        height=500
+        screenwidth = root.winfo_screenwidth()
+        screenheight = root.winfo_screenheight()
+        alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
+        print(alignstr)
+        root.geometry(alignstr)     
 # ========== Main ==========
 def main():
-    # declaration des variables
-    ip_serveur: str = '127.0.0.1'
-    port_serveur: int = 5000
-    client: Client_tcp
-    client = Client_tcp(ip_serveur, port_serveur)
-    client.start()
+    root = Tk()
+    app = Ihm(root)
+    root.mainloop()
 
 
 
