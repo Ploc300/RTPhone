@@ -49,24 +49,24 @@ def generate_token(login: str, password: str) -> bytes:
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(token_bytes)
 
-    return ciphertext, tag, nonce
+    db = Database("Token Creation")
+    db.connect()
+    db.add_token(ciphertext, tag, nonce)
+    return ciphertext
 
-def check_token(token: bytes, tag, nonce) -> bool:
-    key = ENCRYPTION_KEY.encode('utf-8')
-    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+# def check_token(token: bytes) -> bool:
+#     key = ENCRYPTION_KEY.encode('utf-8')
+#     cipher = AES.new(key, AES.MODE_EAX)
 
-    plaintext = cipher.decrypt(token)
+#     plaintext = cipher.decrypt(token)
 
-    try:
-        cipher.verify(tag)
-        print("authentic:", plaintext)
-    except:
-        print('not authentic')
+#     try:
+#         cipher.verify()
+#         print("authentic:", plaintext)
+#     except:
+#         print('not authentic')
 
 
 # ========== Main ==========
 if __name__ == '__main__':
-    generated_token, tag, nonce = generate_token('test', 'test')
-    print(generated_token)
-
-    check_token(generated_token, tag, nonce)
+    generated_token = generate_token('test', 'test')

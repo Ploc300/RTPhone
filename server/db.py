@@ -74,3 +74,15 @@ class Database:
             debug(f'Failed to auth {login} with mail')
             debug_verbose(e)
         return _return
+    
+    def add_token(self, token: bytes, tag: bytes, nonce: bytes) -> bool:
+        _return: bool = False
+        try:
+            self.__cursor.execute(f'INSERT INTO tokens VALUES ({token}, {tag}, {nonce})')
+            self.__connection.commit()
+            _return = True
+        except Exception as e:
+            debug(f'Failed to add token')
+            debug_verbose(e)
+        return _return
+        
