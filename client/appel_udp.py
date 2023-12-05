@@ -16,7 +16,7 @@ import pyaudio
 import sys
 import json
 import time
-import client.py
+from client import ip_serveur, port_serveur
 ## ========== Class ==========
 class Client_udp(Thread):
     def __init__(self, ip_serveur: str, port_serveur: int) -> None:

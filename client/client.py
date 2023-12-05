@@ -1,10 +1,9 @@
 # ========== Import ==========
 import socket
 from threading import Thread
-import pyaudio
 import sys
 import json
-import time
+
 
 # ========== Class ==========
 
@@ -79,8 +78,8 @@ def main():
     # declaration des variables
     ip_serveur: str = '127.0.0.1'
     port_serveur: int = 5000
-    client: Client_udp = None
-    client = Client_udp(ip_serveur, port_serveur)
+    client: Client_tcp
+    client = Client_tcp(ip_serveur, port_serveur)
     client.start()
 
 
