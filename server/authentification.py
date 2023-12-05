@@ -41,21 +41,32 @@ def generate_token(login: str, password: str) -> bytes:
         'password': password,
         'time_limit': time.time() + 3600
     }
-    token_str = json.dumps(token)
+    token_bytes: bytes = json.dumps(token).encode('utf-8')
     
-    cipher = AES.new(ENCRYPTION_KEY.encode('utf-8'), AES.MODE_EAX)
-    ciphertext, tag = cipher.encrypt_and_digest(token_str.encode('utf-8'))
-    
-    return ciphertext
+    key = ENCRYPTION_KEY.encode('utf-8')
+    cipher = AES.new(key, AES.MODE_EAX)
 
-def check_token(token: bytes) -> bool:
-    cipher = AES.new(ENCRYPTION_KEY.encode('utf-8'), AES.MODE_CBC)
-    token_str = cipher.decrypt(token).decode('utf-8')
-    token = json.loads(token_str)
-    return time.time() < token['time_limit']
+    nonce = cipher.nonce
+    ciphertext, tag = cipher.encrypt_and_digest(token_bytes)
+
+    return ciphertext, tag, nonce
+
+def check_token(token: bytes, tag, nonce) -> bool:
+    key = ENCRYPTION_KEY.encode('utf-8')
+    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+
+    plaintext = cipher.decrypt(token)
+
+    try:
+        cipher.verify(tag)
+        print("authentic:", plaintext)
+    except:
+        print('not authentic')
+
 
 # ========== Main ==========
 if __name__ == '__main__':
-    generated_token = generate_token('test', 'test')
+    generated_token, tag, nonce = generate_token('test', 'test')
     print(generated_token)
-    print(check_token(generated_token))
+
+    check_token(generated_token, tag, nonce)
