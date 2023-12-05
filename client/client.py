@@ -81,8 +81,14 @@ class Ihm:
         screenwidth = root.winfo_screenwidth()
         screenheight = root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        print(alignstr)
-        root.geometry(alignstr)     
+        root.geometry(alignstr) 
+        #creation des frames
+        # navbar
+        frame_navbar = Frame(root)
+        frame_navbar.place(x=0, y=0, width=screenwidth, height=50)
+        frame_navbar.config(bg="black")
+
+
 # ========== Main ==========
 def main():
     root = Tk()
