@@ -75,13 +75,13 @@ class Ihm:
     def __init__(self,root) -> None:
         #setting title
         root.title("undefined")
-        #setting window size
+        #setting w indow size
         width=600
         height=500
         screenwidth = root.winfo_screenwidth()
         screenheight = root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr) 
+        root.geometry(alignstr)
         #creation des frames
         # navbar
         frame_navbar = Frame(root)
