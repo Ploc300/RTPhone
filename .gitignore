@@ -151,3 +151,4 @@ cython_debug/
 #.idea/
 
 */test.py
+server/databases/db.sqlite3
