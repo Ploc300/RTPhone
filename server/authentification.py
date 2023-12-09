@@ -20,7 +20,6 @@ def auth(login: str, password: str) -> bool:
         :return: True si l'utilisateur est authentifié, False sinon
     """
     db = Database('Authentification')
-    db.connect()
     _return: bool = False
     if len(login) > 3 or len(password) > 3: # Vérification de la taille du login et du mot de passe
         if not any([char in BANNED_CHAR for char in login]) or not any([char in BANNED_CHAR for char in password]): # Vérification des caractères interdits
@@ -61,7 +60,6 @@ def generate_token(login: str, password: str) -> bytes:
     ciphertext, tag = cipher.encrypt_and_digest(token_bytes)
 
     db = Database("Token Creation")
-    db.connect()
     db.add_token(ciphertext, tag, nonce)
 
     return ciphertext
@@ -77,7 +75,6 @@ def check_token(token: bytes) -> bool:
     _retour: bool = False
 
     db = Database("Token Check")
-    db.connect()
 
     cipher_text, tag, nonce = db.retrieve_token(base64.b64decode(token))
 
@@ -86,19 +83,19 @@ def check_token(token: bytes) -> bool:
         key = ENCRYPTION_KEY.encode('utf-8')
         cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
 
-        plaintext = cipher.decrypt(token).decode('utf-8')
+        plaintext = cipher.decrypt(cipher_text).decode('utf-8')
 
         if time.time() < json.loads(plaintext)['time_limit']: # Si le token n'est pas expiré
             try:
                 cipher.verify(tag)
                 _retour = True
                 debug("The message is authentic")
-                debug_verbose(plaintext)
+                debug_verbose(f'Message: {plaintext}')
             except:
                 debug("Key incorrect or message corrupted")
         else:
             db.remove_token(token)
-    return _retour, json.loads(plaintext)['username']
+    return _retour
 
 
 # ========== Main ==========

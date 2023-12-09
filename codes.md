@@ -27,4 +27,5 @@
 - 05: Send phone number
 - 07: Data is not json
 - 08: Token missing
+- 09: Data missing
 - 99: Conversation not initialized

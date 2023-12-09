@@ -151,14 +151,21 @@ class ClientHandler(Thread):
         message: str
         buffer: str
         code: str ='99'
-        while not code == '00': # Tant que le client n'a pas envoyé le code de fin
+        while code != '00': # Tant que le client n'a pas envoyé le code de fin
             buffer: str = self.recevoir()
-            code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+            try:
+                code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+            except Exception as e:
+                debug(ERROR.format(error='Failed to split code and message'))
+                debug_verbose(e)
+                self.send('09 Data is missing')
+                exit(10)
             try:
                 message = loads(message) # Décodage du message
                 debug(DEBUG.format(debug=f'Code: {code} | Message: {message}'))
             except Exception as e:
                 debug(ERROR.format(error='Failed to decode message'))
+                debug_verbose(code + ' ' + message)
                 debug_verbose(e)
                 self.send('07 Data is not JSON format')
                 exit(10)
@@ -184,13 +191,15 @@ class ClientHandler(Thread):
                     case '02': # Demande de son numéro de telephone
                         debug(INFO.format(info='Client asked for phone number'))
                         try:
-                            token, _ = check_token(message['token'])
-                        except KeyError:
+                            token_validity = check_token(message['token'])
+                            debug_verbose(token_validity)
+                        except Exception as e:
                             self.send('08 token missing')
-                            break
-                        if token:
-                            db = Database("retrieve Phone Number")
-                            data: dict = {'phone_number': db.get_phone_number(message['username'])}
+                            debug_verbose(e)
+                            continue
+                        if token_validity:
+                            db = Database("Retrieve Phone Number")
+                            data: dict = {'username': message['username'], 'phone_number': db.get_phone_number(message['username'])}
                             self.send(f'05 {dumps(data)}')
 
                     case _:

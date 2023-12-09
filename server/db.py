@@ -17,10 +17,18 @@ class Database:
         self.__usage: str = usage
         self.__connection: sqlite3.Connection
         self.__cursor: sqlite3.Cursor
+        debug(f'Created database for: {usage}')
 
-        with open(DATABASE_USAGE_LOG, 'a') as f:
-            # log l'utilisation de la base de données ainsi que la date et l'heure
-            f.write(f'{self.__usage},{datetime.datetime.now()}\n')
+        try:
+            with open(DATABASE_USAGE_LOG, 'a') as f:
+                # log l'utilisation de la base de données ainsi que la date et l'heure
+                f.write(f'{self.__usage},{datetime.datetime.now()}\n')
+                debug(f'Logged database usage')
+        except Exception as e:
+            debug(f'Failed to log database usage')
+            debug_verbose(e)
+            exit(-1)
+        self.connect()
 
     def connect(self) -> None:
         """
@@ -124,7 +132,7 @@ class Database:
     def get_phone_number(self, username: str) -> str:
         _return: str = ''
         try:
-            self.__cursor.execute('SELECT phone_number FROM phone_number WHERE username=?', (username,))
+            self.__cursor.execute('SELECT phone FROM users WHERE name=?', (username,))
             _return = self.__cursor.fetchone()[0]
         except Exception as e:
             debug(f'Failed to get phone number')
