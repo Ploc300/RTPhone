@@ -26,15 +26,19 @@ def auth(login: str, password: str) -> bool:
             if '@' in login:
                 try: # Authentification avec le mail
                     _return = db.auth_mail(login, password)
-                    debug(f'Auth {login} with mail')
+                    debug(f'authentification.py: Auth {login} with mail')
                 except Exception as e:
-                    debug(f'Failed to auth {login} with mail')
+                    debug(f'authentification.py: Failed to auth {login} with mail')
             else:
                 try: # Authentification avec le username
                     _return = db.auth_username(login, password)
-                    debug(f'Auth {login} with username')
+                    debug(f'authentification.py: Auth {login} with username')
                 except Exception as e:
-                    debug(f'Failed to auth {login} with username')
+                    debug(f'authentification.py: Failed to auth {login} with username')
+        else:
+            debug(f'authentification.py: Auth {login}:{password} failed: Banned char')
+    else:
+        debug(f'authentification.py: Auth {login}:{password} failed: Too short')
     return _return
 
 def generate_token(login: str, password: str) -> bytes:
@@ -54,10 +58,10 @@ def generate_token(login: str, password: str) -> bytes:
     token_bytes: bytes = json.dumps(token).encode('utf-8')
     
     key: bytes = ENCRYPTION_KEY.encode('utf-8')
-    cipher: AES = AES.new(key, AES.MODE_EAX)
-    nonce: bytes = cipher.nonce
+    cipher: AES = AES.new(key, AES.MODE_EAX) # Création du cipher
+    nonce: bytes = cipher.nonce # Récupération du nonce
 
-    ciphertext, tag = cipher.encrypt_and_digest(token_bytes)
+    ciphertext, tag = cipher.encrypt_and_digest(token_bytes) # Chiffrement du token
 
     db = Database("Token Creation")
     db.add_token(ciphertext, tag, nonce)
@@ -79,7 +83,7 @@ def check_token(token: bytes) -> bool:
     cipher_text, tag, nonce = db.retrieve_token(base64.b64decode(token))
 
     if cipher_text and tag and nonce: # Si le token existe
-
+        debug(f'authentification.py: Found token in database')
         key = ENCRYPTION_KEY.encode('utf-8')
         cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
 
@@ -89,10 +93,10 @@ def check_token(token: bytes) -> bool:
             try:
                 cipher.verify(tag)
                 _retour = True
-                debug("The message is authentic")
-                debug_verbose(f'Message: {plaintext}')
+                debug(f'authentification.py: Token {token} is valid')
+                debug_verbose(f'authentification.py: Message = {plaintext}')
             except:
-                debug("Key incorrect or message corrupted")
+                debug(f'authentification.py: Token {token} is corrupted')
         else:
             db.remove_token(token)
     return _retour
