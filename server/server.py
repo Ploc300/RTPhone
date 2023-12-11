@@ -1,6 +1,6 @@
 # ========== Import ==========
 import socket, pyaudio, dotenv, os, base64
-from threading import Thread, Timer
+from threading import Thread
 from authentification import auth, generate_token, check_token
 from debug import debug, debug_verbose
 from db import Database
