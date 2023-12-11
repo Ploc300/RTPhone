@@ -74,19 +74,29 @@ class Client_tcp:
 class Ihm:
     def __init__(self,root) -> None:
         #setting title
-        root.title("undefined")
+        root.title("RTphone_l_application_trop_bien.exe")
         #setting w indow size
-        width=600
-        height=500
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
-        alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
+        self.__width=600
+        self.__height=500
+        self.__screenwidth = root.winfo_screenwidth()
+        self.__screenheight = root.winfo_screenheight()
+        self.alignstr = '%dx%d+%d+%d' % (self.__width, self.__height, (self.__screenwidth - self.__width) / 2, (self.__screenheight - self.__height) / 2)
+        root.geometry(self.alignstr)
         #creation des frames
         # navbar
-        frame_navbar = Frame(root)
-        frame_navbar.place(x=0, y=0, width=screenwidth, height=50)
-        frame_navbar.config(bg="black")
+        self.__frame_navbar = Frame(root)
+        self.__frame_navbar.place(x=0, y=0, width=200, height=self.__screenheight)
+        self.__frame_navbar.config(bg="purple")
+        # main
+        self.__frame_main = Frame(root)
+        self.__frame_main.place(x=200, y=0, width=self.__screenwidth-200, height=self.__screenheight)
+        self.__frame_main.config(bg="yellow")
+        # footer
+        self.__frame_footer = Frame(root)
+        self.__frame_footer.place(x=0, y=self.__screenheight-75, width=self.__screenwidth, height=75)
+        self.__frame_footer.config(bg="green")
+        
+
 
 
 # ========== Main ==========
