@@ -24,4 +24,5 @@
 - 02: Get phone number
 - 03: Authentication success
 - 04: Authentication failed
+- 06: Get connected clients
 - 99: Conversation not initialized

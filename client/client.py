@@ -67,6 +67,15 @@ class Client_tcp:
         nom = self.receive()
         return nom
     
+    def get_connected_client(self):
+            """
+                Retourne les clients connectés
+
+                :return: les clients connectés
+            """
+            self.send('06')
+            connected_client = self.receive()
+            return connected_client
 
 
 class Client_udp(Thread):
@@ -125,6 +134,7 @@ def main():
     client.connect_tcp()
     client.envoie('bonjour serveur')
     print(client.receive())
+    print(client.get_connected_client())
 
 
 

@@ -2,6 +2,7 @@
 import socket, pyaudio, json, dotenv, os
 from threading import Thread
 from authentification import auth, generate_token
+from db import Database
 from debug import debug, debug_verbose
 
 # ========== Constant ==========
@@ -168,7 +169,10 @@ class ClientHandler(Thread):
                             debug(ERROR.format(error='Failed to authenticate client'))
                             debug_verbose(e)
                             self.send('04 Authentification failed')
-                            
+                    case '06': # 
+                        db = Database('STATUS')
+                        debug(INFO.format(info='client'))
+                        db.connected_client()
             else:
                 debug(ERROR.format(error='Unknown code'))
                 try:
@@ -178,6 +182,7 @@ class ClientHandler(Thread):
                 exit(10)
         self.arret()
 
+    
     
 
     def arret(self) -> None:
@@ -219,8 +224,8 @@ class ClientManager:
             :return: le nombre de client
         """
         return len(self.__list_client)
-
-
+    
+    
 # ========== Main ==========
 def main():
     listening_socket: ListeningService = ListeningService(5000, 10)
