@@ -1,5 +1,5 @@
 # ===== Import =====
-from tkinter import Tk,Frame, Label, Text, Button
+from tkinter import Tk,Frame, Label, Text, Button, TOP, LEFT, RIGHT, BOTH, X
 from server import ListeningService, ClientHandler, ClientManager
 
 # ===== Constants =====
@@ -50,50 +50,24 @@ class IHM:
         self.__window.resizable(self.__resizable, self.__resizable)
         self.__window.title(self.__title)
 
-    def init_widgets(self) -> None:
+    def init_frales(self) -> None:
         """
-            Initialise les widgets
+            Initialise les frames
 
             :return: None
         """
-        # Initialisation des frames
-        self.__frames['console'] = Frame(self.__window)
-        self.__frames['options'] = Frame(self.__window)
         self.__frames['controls'] = Frame(self.__window)
+        self.__frames['console'] = Frame(self.__window)
+        self.__frames['clients'] = Frame(self.__window)
+        self.__frames['settings'] = Frame(self.__window)
 
-        # Initialisation des labels
-        self.__widgets['labels'] = {}
-        self.__widgets['labels']['console_label'] = Label(self.__frames['console'], text='Console')
-        self.__widgets['labels']['options_label'] = Label(self.__frames['options'], text='Options')
-        self.__widgets['labels']['controls_label'] = Label(self.__frames['controls'], text='Controls')
-        self.__widgets['labels']['options_port_label'] = Label(self.__frames['options'], text='Port')
+        self.__frames['controls'].pack(side=TOP, fill=X)
+        self.__frames['console'].pack(side=TOP, fill=BOTH, expand=True)
+        self.__frames['clients'].pack(side=RIGHT, fill=BOTH, expand=True)
+        self.__frames['settings'].pack(side=LEFT, fill=BOTH, expand=True)
 
-        # Initialisation des zones de texte
-        self.__widgets['text'] = {}
-        self.__widgets['text']['console_text'] = Text(self.__frames['console'])
-        self.__widgets['text']['options_port_input'] = Text(self.__frames['options'])
 
-        # Initialisation des boutons
-        self.__widgets['buttons'] = {}
-        self.__widgets['buttons']['controls_start_button'] = Button(self.__frames['controls'], text='Start', command=self.start)
-        self.__widgets['buttons']['controls_stop_button'] = Button(self.__frames['controls'], text='Stop', command=self.stop)
-        self.__widgets['buttons']['options_port_button'] = Button(self.__frames['options'], text='Change port', command=self.change_port)
-
-        # Placement des widgets
-        for category in self.__widgets.keys():
-            for widget in self.__widgets[category].keys():
-                match widget.split('_')[0]:
-                    case 'console':
-                        self.__widgets[category][widget].pack(self.__frames['console'])
-                    case 'options':
-                        self.__widgets[category][widget].pack(self.__frames['options'])
-                    case 'controls':
-                        self.__widgets[category][widget].pack(self.__frames['controls'])
-
-        # Placement des frames
-        self.__frames['console'].pack()
-        self.__frames['options'].pack()
-        self.__frames['controls'].pack()
+    
 
     def start(self) -> None:
         """
@@ -101,7 +75,7 @@ class IHM:
 
             :return: None
         """
-        pass
+        self.__window.mainloop()
 
     def stop(self) -> None:
         """
@@ -123,8 +97,7 @@ class IHM:
 if __name__ == '__main__':
     ihm = IHM(HEIGHT, WIDTH, RESIZABLE, TITLE)
     ihm.init_window()
-    ihm.init_widgets()
-    ihm.mainloop()
+    ihm.start()
 
 
 
