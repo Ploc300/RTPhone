@@ -1,10 +1,11 @@
 # ========== Import ==========
 import socket, pyaudio, dotenv, os, base64
-from threading import Thread
+from threading import Thread, Timer
 from authentification import auth, generate_token, check_token
 from debug import debug, debug_verbose
 from db import Database
 from json import loads, dumps
+import token_handler
 
 
 # ========== Constant ==========

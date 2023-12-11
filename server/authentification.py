@@ -93,12 +93,11 @@ def check_token(token: bytes) -> bool:
             try:
                 cipher.verify(tag)
                 _retour = True
-                debug(f'authentification.py: Token {token} is valid')
-                debug_verbose(f'authentification.py: Message = {plaintext}')
+                debug(f'authentification.py: Token {cipher_text} is valid')
             except:
-                debug(f'authentification.py: Token {token} is corrupted')
+                debug(f'authentification.py: Token {cipher_text} is corrupted')
         else:
-            db.remove_token(token)
+            db.remove_token(cipher_text)
     return _retour
 
 

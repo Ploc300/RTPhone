@@ -116,11 +116,12 @@ class Database:
     def remove_token(self, token: bytes) -> bool:
         _return: bool = False
         try:
-            self.__cursor.execute('DELETE FROM tokens WHERE token=?', (token,))
+            result = self.__cursor.execute('DELETE FROM tokens WHERE token=?', (token,))
+            debug_verbose(f'db.py: {result}')
             debug(f'db.py: Removed token')
             try:
                 self.__connection.commit()
-                debug(f'db.py: Committed token')
+                debug(f'db.py: Committed remove token')
                 _return = True
             except Exception as e:
                 debug(f'db.py: Failed to commit token')
@@ -138,6 +139,22 @@ class Database:
             debug(f'db.py: Got phone number')
         except Exception as e:
             debug(f'db.py: Failed to get phone number')
+            debug_verbose(f'db.py: {e}')
+        return _return
+    
+    def retrieve_all_tokens(self) -> list:
+        """
+            Récupère tous les tokens
+
+            :return: la liste des tokens
+        """
+        _return: list = []
+        try:
+            self.__cursor.execute('SELECT token FROM tokens')
+            _return = self.__cursor.fetchall()
+            debug(f'db.py: Retrieved all tokens')
+        except Exception as e:
+            debug(f'db.py: Failed to retrieve all tokens')
             debug_verbose(f'db.py: {e}')
         return _return
         
