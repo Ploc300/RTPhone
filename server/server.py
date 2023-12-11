@@ -207,6 +207,8 @@ class ClientHandler(Thread):
                             db = Database("Retrieve Phone Number")
                             data: dict = {'username': message['username'], 'phone_number': db.get_phone_number(message['username'])}
                             self.send(f'05 {dumps(data)}')
+                        else:
+                            self.send('10 Token is invalid')
 
                     case _:
                         pass

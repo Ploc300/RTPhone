@@ -17,7 +17,7 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Softphone
 
-- Connection au serveur
+- Connection au serveur [V]
 - Voir les personnes connectées
 - Gestionnaire des contacts
 - recuperer les information lier a notre compte
@@ -43,7 +43,7 @@ Tous les appels passeront par un serveur d'appel.
 
 ### Serveur
 
-- Connexion des utilisateurs
+- Connexion des utilisateurs [V]
 - Création d'un compte
 - Connexion à un compte
 - Changement du numéro de téléphone sans conflit

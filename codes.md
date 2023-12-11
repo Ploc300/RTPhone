@@ -28,4 +28,5 @@
 - 07: Data is not json
 - 08: Token missing
 - 09: Data missing
+- 10: Token invalid
 - 99: Conversation not initialized
