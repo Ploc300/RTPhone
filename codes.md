@@ -25,8 +25,10 @@
 - 03: Authentication success
 - 04: Authentication failed
 - 05: Send phone number
+- 06: Get connected clients
 - 07: Data is not json
 - 08: Token missing
 - 09: Data missing
 - 10: Token invalid
+- 99: Conversation not initialized
 - 99: Conversation not initialized

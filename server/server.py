@@ -210,6 +210,10 @@ class ClientHandler(Thread):
                             self.send(f'05 {dumps(data)}')
                         else:
                             self.send('10 Token is invalid')
+                    case '06': # 
+                        db = Database('STATUS')
+                        debug(INFO.format(info='client'))
+                        db.connected_client()
 
                     case _:
                         pass
@@ -222,6 +226,7 @@ class ClientHandler(Thread):
                 exit(10)
         self.arret()
 
+    
     
 
     def arret(self) -> None:
@@ -268,8 +273,8 @@ class ClientManager:
             :return: le nombre de client
         """
         return len(self.__list_client)
-
-
+    
+    
 # ========== Main ==========
 def main():
     listening_socket: ListeningService = ListeningService(5000, 10)

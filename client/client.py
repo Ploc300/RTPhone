@@ -81,6 +81,10 @@ def main():
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
     client.start()
+    client.connect_tcp()
+    client.envoie('bonjour serveur')
+    print(client.receive())
+    print(client.get_connected_client())
 
 
 
