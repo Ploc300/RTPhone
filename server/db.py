@@ -116,8 +116,7 @@ class Database:
     def remove_token(self, token: bytes) -> bool:
         _return: bool = False
         try:
-            result = self.__cursor.execute('DELETE FROM tokens WHERE token=?', (token,))
-            debug_verbose(f'db.py: {result}')
+            self.__cursor.execute('DELETE FROM tokens WHERE token=?', (token,))
             debug(f'db.py: Removed token')
             try:
                 self.__connection.commit()
