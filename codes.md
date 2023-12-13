@@ -1,3 +1,8 @@
+# Ports
+Server_tcp: 5000
+Server_udp: 5001
+Client_udp: 5002
+
 # Errors codes
 
 ## Server
