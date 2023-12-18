@@ -59,12 +59,25 @@ class CallServer:
         self.__communication_status: bool = False
 
     def send(self, data: bytes, source: str) -> None:
+        """
+            Envoie les données à tous les clients connectés
+
+            :param data: Données à envoyer
+            :param source: Adresse du client source
+
+            :return: None
+        """
         if not self.__sending_socket is None:
             for client in self.__clients:
                 if client != source:
                     self.__sending_socket.sendto(data, client)
 
     def receive(self) -> bytes:
+        """
+            Recoit les données d'un client
+
+            :return: Données reçues
+        """
         buffer: bytes = b''
         if not self.__receiving_socket is None:
             buffer, addr = self.__receiving_socket.recvfrom(self.frames_per_buffer*2)
@@ -73,25 +86,50 @@ class CallServer:
         return buffer
     
     def audio_input(self) -> None:
+        """
+            Recoit les données audio du client
+
+            :return: None
+        """
         while self.__communication_status:
             buffer: bytes = self.__audio_input.read(self.frames_per_buffer)
             self.send(buffer, self.__receiving_socket.getsockname())
 
     def audio_output(self) -> None:
+        """
+            Envoie les données audio aux clients
+
+            :return: None
+        """
         while self.__communication_status:
             buffer: bytes = self.receive()
             self.__audio_output.write(buffer, self.frames_per_buffer)
 
     def init_sockets(self) -> None:
+        """
+            Initialise les sockets
+
+            :return: None
+        """
         self.__receiving_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__receiving_socket.bind(('', self.__port))
         self.__sending_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def init_threads(self) -> None:
+        """
+            Initialise les threads
+
+            :return: None
+        """
         self.__receiving_thread = Thread(target=self.audio_input)
         self.__sending_thread = Thread(target=self.audio_output)
 
     def start(self) -> None:
+        """
+            Lance le serveur d'appel
+
+            :return: None
+        """
         self.__communication_status = True
         self.init_sockets()
         self.init_threads()
@@ -99,6 +137,11 @@ class CallServer:
         self.__sending_thread.start()
 
     def stop(self) -> None:
+        """
+            Arrête le serveur d'appel
+
+            :return: None
+        """
         self.__communication_status = False
         self.__receiving_socket.close()
         self.__sending_socket.close()

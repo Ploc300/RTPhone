@@ -211,10 +211,27 @@ class ClientHandler(Thread):
                             self.send(f'05 {dumps(data)}')
                         else:
                             self.send('10 Token is invalid')
-                    case '06': # 
+                    case '06': # Demande des clients connecter
                         db = Database('STATUS')
                         debug(INFO.format(info='client'))
                         db.connected_client()
+
+                    case '11': # Demande d'appel
+                        debug(INFO.format(info=f'server.py: Client asked for call'))
+                        try:
+                            token_validity = check_token(message['token'])
+                            debug_verbose(f'server.py: Token validity: {token_validity}')
+                        except Exception as e:
+                            self.send('08 token missing')
+                            debug_verbose(f'server.py: {e}')
+                            continue
+                        if token_validity:
+                            debug(INFO.format(info=f'server.py: Client token is valid'))
+                            users: list = message['users']
+                            user_set: set = set()
+
+                        else:
+                            self.send('10 Token is invalid')
 
                     case _:
                         pass
