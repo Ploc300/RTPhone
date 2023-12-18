@@ -123,7 +123,6 @@ class Ihm(Thread):
         taille : taille dont on veut le pourcentage
         '''
         return int((taille*pourcentage)/100)
-    
 
         
 
