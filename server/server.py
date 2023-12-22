@@ -215,8 +215,15 @@ class ClientHandler(Thread):
                         debug(INFO.format(info='client'))
                         db.connected_client()
 
-                    case _:
-                        pass
+                    case '11': # 
+                        db = Database('Add contact')
+                        debug(INFO.format(info='Add contact'))
+                        db.add_contact()
+                    case '12': # 
+                        db = Database('Retrieve contacts')
+                        debug(INFO.format(info='Retrieve contacts'))
+                        db.get_contact()
+
             else:
                 debug(ERROR.format(error=f'server.py: Unknown code'))
                 try:

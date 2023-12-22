@@ -166,4 +166,24 @@ class Database:
             debug(f'Failed to get status')
             debug_verbose(e)
         return _return
-        
+    
+    def add_contact(self, username: str, contact: str):
+        _return: bool = False
+        try:
+            self.__cursor.execute('INSERT INTO Contats (contacts) VALUES ', (contact),"WHERE user =",(username))
+            debug(f'db.py: Added contact')
+        except Exception as e:
+            debug(f'db.py: Failed to add contact')
+            debug_verbose(f'db.py: {e}')
+        return _return
+    
+    def get_contact(self, username: str):
+        _return: list = []
+        try:
+            self.__cursor.execute('SELECT contacts FROM Contacts WHERE user=',username)
+            _return = self.__cursor.fetchall()
+            debug(f'db.py: Retrieved all contacts')
+        except Exception as e:
+            debug(f'db.py: Failed to retrieve all contacts')
+            debug_verbose(f'db.py: {e}')
+        return _return

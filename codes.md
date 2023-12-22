@@ -30,5 +30,7 @@
 - 08: Token missing
 - 09: Data missing
 - 10: Token invalid
+- 11: Add contact
+- 12: Get contact
 - 99: Conversation not initialized
 - 99: Conversation not initialized

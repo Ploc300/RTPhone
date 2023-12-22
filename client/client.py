@@ -66,6 +66,15 @@ class Client_tcp:
         nom = self.receive()
         return nom
 
+    def add_contact(self)->None:
+        self.send('11')
+        contacts = self.receive()
+        return contacts
+
+    def get_contact(self)->None:
+        self.send('12')
+        contacts = self.receive()
+        return contacts
 
 
 
@@ -84,8 +93,8 @@ def main():
     client.connect_tcp()
     client.envoie('bonjour serveur')
     print(client.receive())
-    print(client.get_connected_client())
-
+    print(client.get_contact())
+    
 
 
 if __name__ == '__main__':
