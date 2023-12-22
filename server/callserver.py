@@ -83,6 +83,7 @@ class CallServer:
             buffer, addr = self.__receiving_socket.recvfrom(self.frames_per_buffer*2)
             if not addr in self.__clients:
                 buffer = b''
+        print(buffer)
         return buffer
     
     def audio_input(self) -> None:
