@@ -11,6 +11,7 @@ class Client_tcp:
         self.ip_serveur = ip_serveur
         self.port_serveur = port_serveur
         self.socket_client = None
+        self.__token: str = None
 
     def connect_tcp(self)->None:
         try:
@@ -20,6 +21,11 @@ class Client_tcp:
         except Exception as ex:
             print("le serveur fais dodo  :", ex)
             sys.exit(1)
+
+    def deconnect_tcp(self)->None:
+        data: dict = {}
+        self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
+        self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
             self.socket_client.send(msg.encode('utf-8'))
@@ -29,24 +35,30 @@ class Client_tcp:
             msg = self.socket_client.recv(1024)
             if msg == None:
                 raise Exception
-                return msg.decode('utf-8')
+            return msg.decode('utf-8')
             
         except Exception as ex:
             print("le serveur nous boycotte, quel connard :", ex)
 
     
-    def auth(self,nom,mail,mdp)->None:
-        if nom :
-            hash ={'nom' : nom , 'mdp' : mdp}
-            hash = json.dumps(hash)
-            self.envoie("01",hash)
-        else :
-            hash ={'mail' : mail , 'mdp' : mdp}
-            hash = json.dumps(hash)
-            self.envoie("01",hash)
+    def auth(self, mdp, nom: str = '', mail: str = '')->None:
+        if nom != '':
+            data: dict = {'username': nom, 'password': mdp}
+            self.envoie(f'01 {json.dumps(data)}')
+        else:
+            data: dict = {'username': mail, 'password': mdp}
+            self.envoie(f'01 {json.dumps(data)}')
+        buffer = self.receive()
+        code = buffer[:2]
+        data = buffer[3:]
+        if code == '03':
+            self.__token = json.loads(data)['token']
+        else:
+            raise Exception(data)
     
-    def get_phone(self)->None:
-        self.envoie('02')
+    def get_phone(self, username: str)->None:
+        data: dict = {'token': self.__token, 'username': username}
+        self.envoie(f'02 {json.dumps(data)}')
         phone = self.receive()
         return phone
     
@@ -76,11 +88,9 @@ def main():
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
-    client.start()
     client.connect_tcp()
-    client.envoie('bonjour serveur')
-    print(client.receive())
-    print(client.get_connected_client())
+    client.auth('test', 'test')
+    client.deconnect_tcp()
 
 
 
