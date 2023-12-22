@@ -187,3 +187,37 @@ class Database:
             debug(f'db.py: Failed to retrieve all contacts')
             debug_verbose(f'db.py: {e}')
         return _return
+    def add_client_ip_token(self, username: str, ip: str, token: str) -> bool:
+        _return: bool = False
+        try:
+            self.__cursor.execute(f'UPDATE users SET current_ip="{ip}", current_token="{token}" WHERE name="{username}"')
+            debug(f'Added client ip')
+            try:
+                self.__connection.commit()
+                debug(f'Committed client ip')
+                _return = True
+            except Exception as e:
+                debug(f'Failed to commit client ip')
+                debug_verbose(e)
+        except Exception as e:
+            debug(f'Failed to add client ip')
+            debug_verbose(e)
+        return _return
+    
+    def remove_client_ip(self, ip: str) -> bool:
+        _return: bool = False
+        try:
+            self.__cursor.execute(f'UPDATE users SET current_ip=NULL, current_token=NULL WHERE current_ip="{ip}"')
+            debug(f'Removed client ip')
+            try:
+                self.__connection.commit()
+                debug(f'Committed remove client ip')
+                _return = True
+            except Exception as e:
+                debug(f'Failed to commit remove client ip')
+                debug_verbose(e)
+        except Exception as e:
+            debug(f'Failed to remove client ip')
+            debug_verbose(e)
+        return _return
+        

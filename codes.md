@@ -1,3 +1,8 @@
+# Ports
+Server_tcp: 5000
+Server_udp: 5001
+Client_udp: 5002
+
 # Errors codes
 
 ## Server
@@ -30,7 +35,8 @@
 - 08: Token missing
 - 09: Data missing
 - 10: Token invalid
-- 11: Add contact
+- 11: Phone call request
 - 12: Get contact
+- 13: Add contact
 - 99: Conversation not initialized
 - 99: Conversation not initialized
