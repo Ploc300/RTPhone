@@ -71,7 +71,17 @@ class Client_tcp:
 
 # ========== Main ==========
 def main():
-    pass
+    # declaration des variables
+    ip_serveur: str = '127.0.0.1'
+    port_serveur: int = 5000
+    client: Client_tcp
+    client = Client_tcp(ip_serveur, port_serveur)
+    client.start()
+    client.connect_tcp()
+    client.envoie('bonjour serveur')
+    print(client.receive())
+    print(client.get_connected_client())
+
 
 
 if __name__ == '__main__':

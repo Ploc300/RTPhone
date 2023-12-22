@@ -1,7 +1,7 @@
 # ===== Import =====
 from db import Database
-from debug import debug
-import time, dotenv, os, json
+from debug import debug, debug_verbose
+import time, dotenv, os, json, base64
 from Cryptodome.Cipher import AES
 
 # ========== Constant ==========
@@ -26,47 +26,79 @@ def auth(login: str, password: str) -> bool:
             if '@' in login:
                 try: # Authentification avec le mail
                     _return = db.auth_mail(login, password)
+                    debug(f'authentification.py: Auth {login} with mail')
                 except Exception as e:
-                    debug(f'Failed to auth {login} with mail')
+                    debug(f'authentification.py: Failed to auth {login} with mail')
             else:
                 try: # Authentification avec le username
                     _return = db.auth_username(login, password)
+                    debug(f'authentification.py: Auth {login} with username')
                 except Exception as e:
-                    debug(f'Failed to auth {login} with username')
+                    debug(f'authentification.py: Failed to auth {login} with username')
+        else:
+            debug(f'authentification.py: Auth {login}:{password} failed: Banned char')
+    else:
+        debug(f'authentification.py: Auth {login}:{password} failed: Too short')
     return _return
 
 def generate_token(login: str, password: str) -> bytes:
+    """ 
+        Génère un token pour l'utilisateur
+
+        :param login: le login de l'utilisateur
+
+        :return: le token de l'utilisateur   
+    """
     token = {
         'login': login,
         'password': password,
-        'time_limit': time.time() + 3600
-    }
+        'time_limit': time.time() + 86400
+    } # Token de 1 jour
+
     token_bytes: bytes = json.dumps(token).encode('utf-8')
     
-    key = ENCRYPTION_KEY.encode('utf-8')
-    cipher = AES.new(key, AES.MODE_EAX)
+    key: bytes = ENCRYPTION_KEY.encode('utf-8')
+    cipher: AES = AES.new(key, AES.MODE_EAX) # Création du cipher
+    nonce: bytes = cipher.nonce # Récupération du nonce
 
-    nonce = cipher.nonce
-    ciphertext, tag = cipher.encrypt_and_digest(token_bytes)
+    ciphertext, tag = cipher.encrypt_and_digest(token_bytes) # Chiffrement du token
 
     db = Database("Token Creation")
-    db.connect()
     db.add_token(ciphertext, tag, nonce)
+
     return ciphertext
 
-# def check_token(token: bytes) -> bool:
-#     key = ENCRYPTION_KEY.encode('utf-8')
-#     cipher = AES.new(key, AES.MODE_EAX)
+def check_token(token: bytes) -> bool:
+    """ 
+        Vérifie si le token est valide
 
-#     plaintext = cipher.decrypt(token)
+        :param token: le token à vérifier
 
-#     try:
-#         cipher.verify()
-#         print("authentic:", plaintext)
-#     except:
-#         print('not authentic')
+        :return: True si le token est valide, False sinon
+    """
+    _retour: bool = False
+
+    db = Database("Token Check")
+
+    cipher_text, tag, nonce = db.retrieve_token(base64.b64decode(token))
+
+    if cipher_text and tag and nonce: # Si le token existe
+        debug(f'authentification.py: Found token in database')
+        key = ENCRYPTION_KEY.encode('utf-8')
+        cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+
+        plaintext = cipher.decrypt(cipher_text).decode('utf-8')
+
+        if time.time() < json.loads(plaintext)['time_limit']: # Si le token n'est pas expiré
+            try:
+                cipher.verify(tag)
+                _retour = True
+                debug(f'authentification.py: Token {cipher_text} is valid')
+            except:
+                debug(f'authentification.py: Token {cipher_text} is corrupted')
+        else:
+            db.remove_token(cipher_text)
+    return _retour
 
 
 # ========== Main ==========
-if __name__ == '__main__':
-    generated_token = generate_token('test', 'test')

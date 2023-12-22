@@ -1,8 +1,12 @@
 # ========== Import ==========
-import socket, pyaudio, json, dotenv, os
+import socket, pyaudio, dotenv, os, base64
 from threading import Thread
-from authentification import auth, generate_token
+from authentification import auth, generate_token, check_token
 from debug import debug, debug_verbose
+from db import Database
+from json import loads, dumps
+import token_handler
+
 
 # ========== Constant ==========
 dotenv.load_dotenv()
@@ -43,26 +47,26 @@ class ListeningService:
 
         try: # Initialisation du socket
             self.__socket: socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            debug(SUCCESS.format(success='Server socket created'))
+            debug(SUCCESS.format(success=f'server.py: Server socket created'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to create server socket'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to create server socket'))
+            debug_verbose(f'server.py: {e}')
             exit(2)
 
         try: # Bind du socket
             self.__socket.bind(('', self.__port))
-            debug(SUCCESS.format(success='Server socket binded'))
+            debug(SUCCESS.format(success=f'server.py: Server socket binded'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to bind server socket'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to bind server socket'))
+            debug_verbose(f'server.py: {e}')
             exit(3)
 
         try: # Mise en écoute du socket
             self.__socket.listen(self.__max_client)
-            debug(SUCCESS.format(success='Socket listening'))
+            debug(SUCCESS.format(success=f'server.py: Socket listening'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to listen socket'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to listen socket'))
+            debug_verbose(f'server.py: {e}')
             exit(4)
 
     def wait(self) -> socket:
@@ -71,13 +75,14 @@ class ListeningService:
 
             :return: le socket d'échange avec le client
         """
-        debug(INFO.format(info='Waiting for client'))
+        debug(INFO.format(info=f'server.py: Waiting for client'))
         try: # Attente des clients
-            socket_echange, addr = self.__socket.accept()
+            socket_echange, _ = self.__socket.accept()
+            debug(SUCCESS.format(success=f'server.py: Client accepted'))
             return socket_echange
         except Exception as e:
-            debug(ERROR.format(error='Failed to accept client'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to accept client'))
+            debug_verbose(f'server.py: {e}')
             exit(6)
     
 class ClientHandler(Thread):
@@ -98,10 +103,10 @@ class ClientHandler(Thread):
         super().__init__()
         try: # Initialisation du socket
             self.__socket_echange: socket = socket_echange
-            debug(SUCCESS.format(success='Socket created'))
+            debug(SUCCESS.format(success=f'server.py: Socket created'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to create socket for client'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to create socket for client'))
+            debug_verbose(f'server.py: {e}')
             exit(5)
 
     def send(self, msg: str) -> None:
@@ -114,15 +119,17 @@ class ClientHandler(Thread):
         """
         try: # Encodage du message
             encoded_msg = msg.encode("utf-8")
+            debug(INFO.format(info=f'server.py: Message successfully encoded'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to encode message'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to encode message'))
+            debug_verbose(f'server.py: {e}')
             exit(7)
         try: # Envoi du message
-            self.__socket_echange.send(msg)
+            self.__socket_echange.send(encoded_msg)
+            debug(INFO.format(info=f'server.py: Message successfully sent'))
         except Exception as e:
-            debug(ERROR.format(error='Failed to send message'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to send message'))
+            debug_verbose(f'server.py: {e}')
             exit(8)
 
     def recevoir(self) -> str:
@@ -133,10 +140,11 @@ class ClientHandler(Thread):
         """
         try: # Réception du message
             msg: bytes = self.__socket_echange.recv(1024)
+            debug(INFO.format(info=f'server.py: Message successfully received'))
             return msg.decode("utf-8")
         except Exception as e:
-            debug(ERROR.format(error='Failed to receive message'))
-            debug_verbose(e)
+            debug(ERROR.format(error=f'server.py: Failed to receive message'))
+            debug_verbose(f'server.py: {e}')
             exit(9)
     
     def run(self) -> None:
@@ -145,39 +153,80 @@ class ClientHandler(Thread):
 
             :return: None
         """
-        msg_reception: str
+        message: str
         buffer: str
         code: str ='99'
-        while not msg_reception[0:2] == '00': # Tant que le client n'a pas envoyé le code de fin
+        while code != '00': # Tant que le client n'a pas envoyé le code de fin
             buffer: str = self.recevoir()
-            code, message = buffer[0:2], buffer[3:].loads() # Récupération du code et du message
+            try:
+                code, message = buffer[0:2], buffer[3:] # Récupération du code et du message
+                debug(INFO.format(info=f'server.py: Found code and data'))
+            except Exception as e:
+                debug(ERROR.format(error=f'server.py: Failed to split code and message'))
+                debug_verbose(f'server.py: {e}')
+                self.send('09 Data is missing')
+                exit(10)
+            try:
+                message = loads(message) # Décodage du message
+                debug(INFO.format(info=f'server.py: Code: {code} | Message: {message}'))
+            except Exception as e:
+                debug(ERROR.format(error=f'server.py: Failed to decode message'))
+                debug_verbose(f'server.py: {e}')
+                self.send('07 Data is not JSON format')
+                exit(10)
             if code in POSSIBLE_CODE: # Si le code est valide
                 match code:
                     case '99': # Initialisation du client
-                        debug(INFO.format(info='Initializing client connection'))
+                        debug(INFO.format(info=f'server.py: Initializing client connection'))
                         break
                     case '01': # Authentification
-                        debug(INFO.format(info='Authenticating client'))
+                        debug(INFO.format(info=f'server.py: Authenticating client'))
                         try:
                             if auth(message['username'], message['password']):
-                                token: str = generate_token(message['username'], message['password'])
-                                self.send('03 Authentification success')
+                                debug(INFO.format(info=f'server.py: Client authenticated'))
+                                data: dict = {'token': base64.b64encode(generate_token(message['username'], message['password'])).decode('utf-8')}
+                                self.send(f'03 {dumps(data)}')
                             else:
+                                debug(ERROR.format(error=f'server.py: Failed to authenticate client'))
                                 self.send('04 Authentification failed')
                         except Exception as e:
-                            debug(ERROR.format(error='Failed to authenticate client'))
-                            debug_verbose(e)
+                            debug(ERROR.format(error=f'server.py: Failed to authenticate client'))
+                            debug_verbose(f'server.py: {e}')
                             self.send('04 Authentification failed')
-                            
+
+                    case '02': # Demande de son numéro de telephone
+                        debug(INFO.format(info=f'server.py: Client asked for phone number'))
+                        try:
+                            token_validity = check_token(message['token'])
+                            debug_verbose(f'server.py: Token validity: {token_validity}')
+                        except Exception as e:
+                            self.send('08 token missing')
+                            debug_verbose(f'server.py: {e}')
+                            continue
+                        if token_validity:
+                            debug(INFO.format(info=f'server.py: Client token is valid'))
+                            db = Database("Retrieve Phone Number")
+                            data: dict = {'username': message['username'], 'phone_number': db.get_phone_number(message['username'])}
+                            self.send(f'05 {dumps(data)}')
+                        else:
+                            self.send('10 Token is invalid')
+                    case '06': # 
+                        db = Database('STATUS')
+                        debug(INFO.format(info='client'))
+                        db.connected_client()
+
+                    case _:
+                        pass
             else:
-                debug(ERROR.format(error='Unknown code'))
+                debug(ERROR.format(error=f'server.py: Unknown code'))
                 try:
                     self.send('00 Unknown code')
                 except Exception as e:
-                    debug(ERROR.format(error='Failed to send termination message'))
+                    debug(ERROR.format(error=f'server.py: Failed to send termination message'))
                 exit(10)
         self.arret()
 
+    
     
 
     def arret(self) -> None:
@@ -187,7 +236,7 @@ class ClientHandler(Thread):
             :return: None
         """
         self.__socket_echange.close()
-        debug(INFO.format(info='Client disconnected'))
+        debug(INFO.format(info=f'server.py: Client disconnected'))
         exit(0)
     
 class ClientManager:
@@ -210,7 +259,12 @@ class ClientManager:
 
             :return: None
         """
-        self.__list_client.append(client)
+        try:
+            self.__list_client.append(client)
+            debug(INFO.format(info=f'server.py: New client added'))
+        except Exception as e:
+            debug(ERROR.format(error=f'server.py: Failed to add client'))
+            debug_verbose(f'server.py: {e}')
 
     def get_number_client(self) -> int:
         """
@@ -219,8 +273,8 @@ class ClientManager:
             :return: le nombre de client
         """
         return len(self.__list_client)
-
-
+    
+    
 # ========== Main ==========
 def main():
     listening_socket: ListeningService = ListeningService(5000, 10)
@@ -235,7 +289,6 @@ def main():
             socket_echange.start()
 
             clientManager.add_client(socket_echange)
-            debug(INFO.format(info='New client added'))
 
 
 
