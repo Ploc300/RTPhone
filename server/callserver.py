@@ -147,14 +147,6 @@ class CallServer:
         self.__receiving_socket.close()
         self.__sending_socket.close()
 
-
-
-
-    
-
-        
-    
-
 # ========== Main ==========
 if __name__ == '__main__':
     clients: set = set()
