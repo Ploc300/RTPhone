@@ -15,7 +15,6 @@ from threading import Thread
 import pyaudio
 import sys
 import time
-from client import ip_serveur, port_serveur
 ## ========== Class ==========
 
 class Client_udp(Thread):

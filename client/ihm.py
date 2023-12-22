@@ -1,5 +1,10 @@
 from tkinter import *
 from threading import Thread
+from appel_udp import Client_udp
+from client import Client_tcp
+import pyglet
+# ========== import font ==========
+pyglet.font.add_file('client/Monocraft.ttf')
 # ========== Class ==========
 
 ##interface graphique
@@ -8,7 +13,7 @@ class Ihm(Thread):
         Thread.__init__(self)
         self.__root = root
         #setting title
-        self.__root.title("RTphone_l_application_trop_bien.exe")
+        self.__root.title("RIP_flemme<3.exe")
         #setting w indow size
         self.__screenwidth = root.winfo_screenwidth()
         self.__screenheight = root.winfo_screenheight()
@@ -34,10 +39,24 @@ class Ihm(Thread):
         self.__frame_footer.config(bg="green")
         self.__root.update()
         #navbar menu
-        self.__boutton_nav_con = Button(self.__frame_navbar, text="connexion")
-        self.__boutton_nav_contacts = Button(self.__frame_navbar, text="contacts")
-        self.__boutton_nav_param
-        
+        self.__lbl_titre = Label(self.__frame_navbar, text="RT PHONE", bg="purple", fg="white", font=("Monocraft", 28))
+        self.__boutton_nav_con = Button(self.__frame_navbar, text="connexion",width=15)
+        self.__boutton_nav_home = Button(self.__frame_navbar, text="home",width=15)
+        self.__boutton_nav_contacts = Button(self.__frame_navbar, text="contacts",width=15)
+        self.__boutton_nav_param = Button(self.__frame_navbar, text="parametres",width=15)
+        #pied de page
+        self.__lbl_pied = Label(self.__frame_footer, text="RT PHONE", bg="green", fg="white", font=("Arial", 28))
+        self.__lbl_auteur_j = Label(self.__frame_footer, text="Malo Jouet", bg="green", fg="white", font=("Arial", 28))
+        self.__lbl_auteur_l = Label(self.__frame_footer, text="Malo Lebreton", bg="green", fg="white", font=("Arial", 28))
+        self.__lbl_auteur_p = Label(self.__frame_footer, text="Malo Pichon", bg="green", fg="white", font=("Arial", 28))
+
+        ##placement
+        self.__lbl_titre.grid(row=0,column=0,columnspan=2, pady=10)
+        self.__boutton_nav_con.grid(row=1,column=0, pady=10,sticky="e")
+        self.__boutton_nav_home.grid(row=2,column=0, pady=10,sticky="e")
+        self.__boutton_nav_contacts.grid(row=3,column=0, pady=10,sticky="e")
+        self.__boutton_nav_param.grid(row=4,column=0, pady=10,sticky="e")
+        #main menu  
 
     
     def pourcent(self, pourcentage: int, taille: int)->int:
