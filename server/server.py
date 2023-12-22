@@ -6,6 +6,7 @@ from debug import debug, debug_verbose
 from db import Database
 from json import loads, dumps
 import token_handler
+from callserver import CallServer
 
 
 # ========== Constant ==========
@@ -185,6 +186,8 @@ class ClientHandler(Thread):
                             if auth(message['username'], message['password']):
                                 debug(INFO.format(info=f'server.py: Client authenticated'))
                                 data: dict = {'token': base64.b64encode(generate_token(message['username'], message['password'])).decode('utf-8')}
+                                db = Database("Add client IP")
+                                db.add_client_ip_token(message['username'], self.__socket_echange.getpeername()[0], data['token'])
                                 self.send(f'03 {dumps(data)}')
                             else:
                                 debug(ERROR.format(error=f'server.py: Failed to authenticate client'))
@@ -210,10 +213,29 @@ class ClientHandler(Thread):
                             self.send(f'05 {dumps(data)}')
                         else:
                             self.send('10 Token is invalid')
-                    case '06': # 
+                    case '06': # Demande des clients connecter
                         db = Database('STATUS')
                         debug(INFO.format(info='client'))
                         db.connected_client()
+
+                    case '11': # Demande d'appel
+                        debug(INFO.format(info=f'server.py: Client asked for call'))
+                        try:
+                            token_validity = check_token(message['token'])
+                            debug_verbose(f'server.py: Token validity: {token_validity}')
+                        except Exception as e:
+                            self.send('08 token missing')
+                            debug_verbose(f'server.py: {e}')
+                            continue
+                        if token_validity:
+                            debug(INFO.format(info=f'server.py: Client token is valid'))
+                            user_set: set = set()
+                            for user in message['users']:
+                                user_set.add(user)
+                            CallServer(user_set).start()
+
+                        else:
+                            self.send('10 Token is invalid')
 
                     case _:
                         pass
@@ -235,6 +257,8 @@ class ClientHandler(Thread):
 
             :return: None
         """
+        db = Database("Client logout")
+        db.remove_client_ip(self.__socket_echange.getpeername()[0])
         self.__socket_echange.close()
         debug(INFO.format(info=f'server.py: Client disconnected'))
         exit(0)
