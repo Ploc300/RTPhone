@@ -4,7 +4,6 @@ from threading import Thread
 import sys
 import json
 
-
 # ========== Class ==========
 
 class Client_tcp:
@@ -70,9 +69,6 @@ class Client_tcp:
 
 
 
-##interface graphique
-
-     
 # ========== Main ==========
 def main():
     # declaration des variables
