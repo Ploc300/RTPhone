@@ -179,7 +179,6 @@ class ClientHandler(Thread):
                 match code:
                     case '99': # Initialisation du client
                         debug(INFO.format(info=f'server.py: Initializing client connection'))
-                        break
                     case '01': # Authentification
                         debug(INFO.format(info=f'server.py: Authenticating client'))
                         try:
