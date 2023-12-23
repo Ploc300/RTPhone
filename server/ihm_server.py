@@ -1,16 +1,17 @@
 # ===== Import =====
-from tkinter import Tk,Frame, Label, Text, Button, TOP, LEFT, RIGHT, BOTH, X
-from server import ListeningService, ClientHandler, ClientManager
+from tkinter import Tk, Toplevel, ttk
+from ttkbootstrap import Style
+# from server import ListeningService, ClientHandler, ClientManager
 
 # ===== Constants =====
 HEIGHT: int = 500
-WIDTH: int = 500
-RESIZABLE: bool = True
+WIDTH: int = 200
+RESIZABLE: bool = False
 
 TITLE: str = 'Serveur'
 
 # ===== Class =====
-class IHM:
+class Ihm(Tk):
     """
         Classe permettant de créer une interface graphique pour le serveur
     """
@@ -27,77 +28,125 @@ class IHM:
 
             :return: None
         """
-        self.__height: int = height
-        self.__width: int = width
-        self.__resizable: bool = resizable
-        self.__title: str = title
-        self.__geometry: str = f'{self.__width}x{self.__height}'
-        self.__widgets: dict = {}
-        self.__frames: dict = {}
-        self.__window: Tk = None
-        self.__listening_service: ListeningService = None
-        self.__client_manager: ClientManager = None
-        self.__client_handler: ClientHandler = None
+        super().__init__()
+        self.__height = height
+        self.__width = width
+        self.__title = title
+
+        self.resizable(RESIZABLE, RESIZABLE)
+        self.title(self.__title)
+        self.geometry(f'{self.__width}x{self.__height}')
+        self.protocol('WM_DELETE_WINDOW', self.close) # Handle the close native close button
+        self.attributes('-toolwindow', True) # Remove the maximize and minimize button
+        self.attributes('-topmost', True) # Put the window on top of the others
+
+        style = Style(theme='vapor')
+
+        # Variables for opened windows
+        self.__config = False
+
+        # Variables for server configuration
+        self.__server_port = None
+        self.__server_client_max = None
 
     def init_window(self) -> None:
         """
-            Initialise la fenêtre
+            Initialise les widgets de la fenêtre
 
             :return: None
         """
-        self.__window = Tk()
-        self.__window.geometry(self.__geometry)
-        self.__window.resizable(self.__resizable, self.__resizable)
-        self.__window.title(self.__title)
+        self.__button_configuration = ttk.Button(self, text = 'Configuration', bootstyle='primary', command = self.__open_configuration)
+        self.__button_configuration.grid(row = 0, column = 0)
 
-    def init_frales(self) -> None:
+
+
+        self.__button_quit = ttk.Button(self, text = 'Quitter', command = self.close)
+        self.__button_quit.grid(row = 1, column = 0)
+
+    def close(self) -> None:
         """
-            Initialise les frames
+            Ferme la fenêtre
 
             :return: None
         """
-        self.__frames['controls'] = Frame(self.__window)
-        self.__frames['console'] = Frame(self.__window)
-        self.__frames['clients'] = Frame(self.__window)
-        self.__frames['settings'] = Frame(self.__window)
+        self.destroy()
 
-        self.__frames['controls'].pack(side=TOP, fill=X)
-        self.__frames['console'].pack(side=TOP, fill=BOTH, expand=True)
-        self.__frames['clients'].pack(side=RIGHT, fill=BOTH, expand=True)
-        self.__frames['settings'].pack(side=LEFT, fill=BOTH, expand=True)
+    def __open_configuration(self) -> None:
+        """
+            Ouvre une fenêtre de configuration
+
+            :return: None
+        """
+        if not self.__config:
+            self.__config = Config(self)
+            self.__config.mainloop()
+        
+
+class Config(Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.__title = f'{self.master.title()}: Configuration'
+        self.__parent = parent
+        self.title(self.__title)
+        self.geometry(f'500x500')
+        self.resizable(RESIZABLE, RESIZABLE)
+        self.protocol('WM_DELETE_WINDOW', self.close)
+        self.attributes('-toolwindow', True)
+        self.attributes('-topmost', True)
+        self.init_window()
+
+    def init_window(self):
+        # Accessing parent's variables
+        server_port = self.__parent._Ihm__server_port
+        server_client_max = self.__parent._Ihm__server_client_max
+
+        self.__frame_port = ttk.Frame(self, bootstyle='secondary')
+        self.__frame_client_max = ttk.Frame(self, bootstyle='secondary')
+
+        self.__label_server_port = ttk.Label(self.__frame_port, text='Port du serveur:', bootstyle='secondary')
+        self.__label_server_port.grid(row=0, column=0, sticky='e')
+
+        self.__label_current_server_port = ttk.Label(self.__frame_port, text=f'Port actuel: {server_port}', style='TLabel')
+        self.__label_current_server_port.grid(row=1, column=0, columnspan=2)
+
+        self.__entry_server_port = ttk.Entry(self.__frame_port, style='TEntry')
+        self.__entry_server_port.grid(row=0, column=1, sticky='w')
+
+        self.__label_sever_client_max = ttk.Label(self.__frame_client_max, text='Nombre maximum de clients:', style='TLabel')
+        self.__label_sever_client_max.grid(row=0, column=0, sticky='e')
+
+        self.__label_current_server_client_max = ttk.Label(self.__frame_client_max, text=f'Nombre maximum de clients actuel: {server_client_max}', style='TLabel')
+        self.__label_current_server_client_max.grid(row=1, column=0, columnspan=2)
+
+        self.__entry_server_client_max = ttk.Entry(self.__frame_client_max, style='TEntry')
+        self.__entry_server_client_max.grid(row=0, column=1, sticky='w')
+
+        self.__button_save = ttk.Button(self, text='Sauvegarder', style='TButton', command=self.save)
+
+        self.__frame_port.grid(row=0, column=0, sticky='ew')
+        self.grid_rowconfigure(1, pad=2)
+        self.__frame_client_max.grid(row=2, column=0, sticky='ew')
+        self.grid_rowconfigure(3, pad=2)
+        self.__button_save.grid(row=4, column=0, sticky='ew')
+
+    def save(self):
+        self.__parent._Ihm__server_port = self.__entry_server_port.get() if self.__entry_server_port.get().isdigit() else self.__parent._Ihm__server_port
+        self.__parent._Ihm__server_client_max = self.__entry_server_client_max.get() if self.__entry_server_client_max.get().isdigit() else self.__parent._Ihm__server_client_max
+        self.close()
 
 
     
 
-    def start(self) -> None:
-        """
-            Démarre le serveur
+    def close(self):
+        self.__parent._Ihm__config = False
+        self.destroy()
 
-            :return: None
-        """
-        self.__window.mainloop()
-
-    def stop(self) -> None:
-        """
-            Arrête le serveur
-
-            :return: None
-        """
-        pass
-
-    def change_port(self) -> None:
-        """
-            Change le port du serveur
-
-            :return: None
-        """
-        pass
 
 
 if __name__ == '__main__':
-    ihm = IHM(HEIGHT, WIDTH, RESIZABLE, TITLE)
+    ihm = Ihm(HEIGHT, WIDTH, RESIZABLE, TITLE)
     ihm.init_window()
-    ihm.start()
+    ihm.mainloop()
 
 
 
