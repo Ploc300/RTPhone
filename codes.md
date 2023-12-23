@@ -1,3 +1,8 @@
+# Ports
+Server_tcp: 5000
+Server_udp: 5001
+Client_udp: 5002
+
 # Errors codes
 
 ## Server
@@ -25,8 +30,11 @@
 - 03: Authentication success
 - 04: Authentication failed
 - 05: Send phone number
+- 06: Get connected clients
 - 07: Data is not json
 - 08: Token missing
 - 09: Data missing
 - 10: Token invalid
+- 11: Phone call request
+- 99: Conversation not initialized
 - 99: Conversation not initialized
