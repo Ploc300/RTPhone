@@ -297,6 +297,25 @@ class ClientManager:
         """
         return len(self.__list_client)
     
+    def remove_dead_client(self) -> None:
+        """
+            Supprime les clients morts
+
+            :return: None
+        """
+        for client in self.__list_client:
+            if not client.is_alive():
+                self.__list_client.remove(client)
+                debug(INFO.format(info=f'server.py: Client removed'))
+
+    def get_clients(self) -> list:
+        """
+            Retourne la liste des clients
+
+            :return: la liste des clients
+        """
+        return self.__list_client
+    
     
 # ========== Main ==========
 def main():

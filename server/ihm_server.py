@@ -1,7 +1,8 @@
 # ===== Import =====
 from tkinter import Tk, Toplevel, ttk
 from ttkbootstrap import Style
-# from server import ListeningService, ClientHandler, ClientManager
+from server import ListeningService, ClientHandler, ClientManager
+from threading import Thread
 
 # ===== Constants =====
 HEIGHT: int = 500
@@ -9,6 +10,8 @@ WIDTH: int = 200
 RESIZABLE: bool = False
 
 TITLE: str = 'Serveur'
+
+STOP_FLAG: bool = False
 
 # ===== Class =====
 class Ihm(Tk):
@@ -43,11 +46,19 @@ class Ihm(Tk):
         style = Style(theme='vapor')
 
         # Variables for opened windows
-        self.__config = False
+        self.__is_fen_config = False
+        self.__is_fen_server = False
 
         # Variables for server configuration
-        self.__server_port = None
-        self.__server_client_max = None
+        self.__server_port = 5000 # Default port
+        self.__server_client_max = 10 # Default max client
+
+        # Variables for server
+        self.__listening_service = None
+        self.__client_handler = None
+        self.__client_manager = None
+
+        self.__listening_service_thread = Thread(target=start_server, args=(self, self.__server_port, self.__server_client_max))
 
     def init_window(self) -> None:
         """
@@ -55,13 +66,14 @@ class Ihm(Tk):
 
             :return: None
         """
-        self.__button_configuration = ttk.Button(self, text = 'Configuration', bootstyle='primary', command = self.__open_configuration)
+        self.__button_configuration = ttk.Button(self, text = 'Configuration', bootstyle='primary', command = self.open_configuration)
         self.__button_configuration.grid(row = 0, column = 0)
 
-
+        self.__button_server = ttk.Button(self, text = 'Serveur', bootstyle='primary', command = self.open_server)
+        self.__button_server.grid(row = 1, column = 0)
 
         self.__button_quit = ttk.Button(self, text = 'Quitter', command = self.close)
-        self.__button_quit.grid(row = 1, column = 0)
+        self.__button_quit.grid(row = self.grid_size()[1], column = 0)
 
     def close(self) -> None:
         """
@@ -71,21 +83,31 @@ class Ihm(Tk):
         """
         self.destroy()
 
-    def __open_configuration(self) -> None:
+    def open_configuration(self) -> None:
         """
             Ouvre une fenêtre de configuration
 
             :return: None
         """
-        if not self.__config:
-            self.__config = Config(self)
-            self.__config.mainloop()
+        if not self.__is_fen_config:
+            self.__is_fen_config = Configuration(self)
+            self.__is_fen_config.mainloop()
+    
+    def open_server(self) -> None:
+        """
+            Ouvre une fenêtre de serveur
+
+            :return: None
+        """
+        if not self.__is_fen_server:
+            self.__is_fen_server = Server(self)
+            self.__is_fen_server.mainloop()
         
 
-class Config(Toplevel):
+class Configuration(Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.__title = f'{self.master.title()}: Configuration'
+        self.__title = f'{self.master.title()}: {self.__class__.__name__}'
         self.__parent = parent
         self.title(self.__title)
         self.geometry(f'500x500')
@@ -134,14 +156,75 @@ class Config(Toplevel):
         self.__parent._Ihm__server_client_max = self.__entry_server_client_max.get() if self.__entry_server_client_max.get().isdigit() else self.__parent._Ihm__server_client_max
         self.close()
 
-
-    
-
     def close(self):
-        self.__parent._Ihm__config = False
+        self.__parent._Ihm__is_fen_config = False
         self.destroy()
 
+class Server(Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.__title = f'{self.master.title()}: {self.__class__.__name__}'
+        self.__parent = parent
+        self.title(self.__title)
+        self.geometry(f'500x500')
+        self.resizable(RESIZABLE, RESIZABLE)
+        self.protocol('WM_DELETE_WINDOW', self.close)
+        self.attributes('-toolwindow', True)
+        self.attributes('-topmost', True)
+        self.init_window()
 
+    def init_window(self):
+        self.__frame_buttons = ttk.Frame(self, bootstyle='secondary')
+        self.__frame_console = ttk.Frame(self, bootstyle='secondary')
+
+        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= self.__parent._Ihm__listening_service_thread.start)
+        self.__button_start.grid(row=0, column=0, sticky='ew')
+
+        self.__button_stop = ttk.Button(self.__frame_buttons, text='Arrêter', style='TButton', command=lambda: stop_server(self.__parent))
+        self.__button_stop.grid(row=0, column=1, sticky='ew')
+
+        self.__label_console = ttk.Label(self.__frame_console, text='Console:', style='TLabel')
+        self.__label_console.grid(row=0, column=0, sticky='ew')
+
+        self.__entry_console = ttk.Entry(self.__frame_console, style='TEntry', state='disabled')
+        self.__entry_console.grid(row=1, column=0, sticky='ew')
+
+        self.__frame_buttons.grid(row=0, column=0, sticky='ew')
+        self.grid_rowconfigure(1, pad=2)
+        self.__frame_console.grid(row=2, column=0, sticky='ew')
+        self.grid_rowconfigure(3, pad=2)
+
+    def close(self):
+        self.__parent._Ihm__is_fen_server = False
+        self.destroy()
+
+def start_server(host, port, max_client):
+    host._Ihm__listening_service = ListeningService(port, max_client)
+    host._Ihm__client_manager = ClientManager()
+
+    while not STOP_FLAG:
+        if host._Ihm__client_manager.get_number_client() < max_client:
+
+            host._Ihm__client_handler = ClientHandler(host._Ihm__listening_service.wait())
+
+            host._Ihm__client_handler.start()
+
+            host._Ihm__client_manager.add_client(host._Ihm__client_handler)
+    
+
+def stop_server(host):
+    for client in host._Ihm__client_manager.get_clients():
+        client.arret()
+
+    STOP_FLAG = True
+    host._Ihm__listening_service_thread.join()
+
+    print(host._Ihm__client_manager.get_clients())
+
+    host._Ihm__listening_service_thread.join()
+
+    
+    
 
 if __name__ == '__main__':
     ihm = Ihm(HEIGHT, WIDTH, RESIZABLE, TITLE)
