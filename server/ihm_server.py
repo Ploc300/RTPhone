@@ -1,7 +1,7 @@
 # ===== Import =====
 from tkinter import Tk, Toplevel, ttk
 from ttkbootstrap import Style
-from server import ListeningService, ClientHandler, ClientManager
+from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
 
 # ===== Constants =====
@@ -213,15 +213,9 @@ def start_server(host, port, max_client):
     
 
 def stop_server(host):
-    for client in host._Ihm__client_manager.get_clients():
-        client.arret()
-
+    stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
+    print('Server stopped')
     STOP_FLAG = True
-    host._Ihm__listening_service_thread.join()
-
-    print(host._Ihm__client_manager.get_clients())
-
-    host._Ihm__listening_service_thread.join()
 
     
     

@@ -45,6 +45,7 @@ class ListeningService:
         """
         self.__port: int = port
         self.__max_client: int = max_client
+        self.__running: bool = True
 
         try: # Initialisation du socket
             self.__socket: socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,14 +78,25 @@ class ListeningService:
             :return: le socket d'échange avec le client
         """
         debug(INFO.format(info=f'server.py: Waiting for client'))
-        try: # Attente des clients
-            socket_echange, _ = self.__socket.accept()
-            debug(SUCCESS.format(success=f'server.py: Client accepted'))
-            return socket_echange
-        except Exception as e:
-            debug(ERROR.format(error=f'server.py: Failed to accept client'))
-            debug_verbose(f'server.py: {e}')
-            exit(6)
+        if self.__running:
+            try: # Attente des clients
+                socket_echange, _ = self.__socket.accept()
+                debug(SUCCESS.format(success=f'server.py: Client accepted'))
+                return socket_echange
+            except Exception as e:
+                debug(ERROR.format(error=f'server.py: Failed to accept client'))
+                debug_verbose(f'server.py: {e}')
+                exit(6)
+
+    def close(self) -> None:
+        """
+            Ferme le socket
+
+            :return: None
+        """
+        self.__running = False
+        self.__socket.close()
+        debug(INFO.format(info=f'server.py: Server socket closed'))
     
 class ClientHandler(Thread):
     """
@@ -245,12 +257,12 @@ class ClientHandler(Thread):
                 except Exception as e:
                     debug(ERROR.format(error=f'server.py: Failed to send termination message'))
                 exit(10)
-        self.arret()
+        self.close()
 
     
     
 
-    def arret(self) -> None:
+    def close(self) -> None:
         """
             Arrêt du client
 
@@ -258,9 +270,9 @@ class ClientHandler(Thread):
         """
         db = Database("Client logout")
         db.remove_client_ip(self.__socket_echange.getpeername()[0])
+        self.send('00 Server closed')
         self.__socket_echange.close()
         debug(INFO.format(info=f'server.py: Client disconnected'))
-        exit(0)
     
 class ClientManager:
     """
@@ -315,6 +327,29 @@ class ClientManager:
             :return: la liste des clients
         """
         return self.__list_client
+    
+    def close(self) -> None:
+        """
+            Arrêt du gestionnaire de client
+
+            :return: None
+        """
+        for client in self.__list_client:
+            client.close()
+        debug(INFO.format(info=f'server.py: Client manager closed'))
+
+def stop_everything(listeningSocket: ListeningService, clientManager: ClientManager) -> None:
+    """
+        Arrêt du serveur
+
+        :return: None
+    """
+    debug(INFO.format(info=f'server.py: Stopping server'))
+    clientManager.close()
+    debug_verbose(f'server.py: Client manager closed')
+    listeningSocket.close()
+    debug_verbose(f'server.py: Listening socket closed')
+    exit(0)
     
     
 # ========== Main ==========
