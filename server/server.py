@@ -84,9 +84,10 @@ class ListeningService:
                 debug(SUCCESS.format(success=f'server.py: Client accepted'))
                 return socket_echange
             except Exception as e:
-                debug(ERROR.format(error=f'server.py: Failed to accept client'))
-                debug_verbose(f'server.py: {e}')
-                exit(6)
+                if self.__running:
+                    debug(ERROR.format(error=f'server.py: Failed to accept client'))
+                    debug_verbose(f'server.py: {e}')
+                    # exit(6) was causing the server to never stop correctly
 
     def close(self) -> None:
         """
