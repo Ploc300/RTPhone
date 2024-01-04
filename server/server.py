@@ -291,7 +291,11 @@ class ClientHandler(Thread):
             :return: None
         """
         db = Database("Client logout")
-        db.remove_client_ip(self.__socket_echange.getpeername()[0])
+        try:
+            db.remove_client_ip(self.__socket_echange.getpeername()[0])
+        except Exception as e:
+            debug(ERROR.format(error=f'server.py: Failed to remove client IP'))
+            debug_verbose(f'server.py: {e}')
         self.send('00 Server closed')
         self.__socket_echange.close()
         debug(INFO.format(info=f'server.py: Client disconnected'))
@@ -377,20 +381,4 @@ def stop_everything(listeningSocket: ListeningService, clientManager: ClientMana
 
 
 # ========== Main ==========
-def main():
-    listening_socket: ListeningService = ListeningService(5000, 10)
-    clientManager: ClientManager = ClientManager()
 
-    while True:
-        if clientManager.get_number_client() < 10:
-            socketClient: socket = listening_socket.wait()
-
-            socket_echange: ClientHandler = ClientHandler(socketClient)
-
-            socket_echange.start()
-
-            clientManager.add_client(socket_echange)
-
-
-if __name__ == '__main__':
-    main()
