@@ -77,6 +77,15 @@ class Client_tcp:
         nom = self.receive()
         return nom
 
+    def add_contact(self)->None:
+        self.send('11')
+        contacts = self.receive()
+        return contacts
+
+    def get_contact(self)->None:
+        self.send('12')
+        contacts = self.receive()
+        return contacts
 
 
 

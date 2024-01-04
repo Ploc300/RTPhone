@@ -236,6 +236,18 @@ class ClientHandler(Thread):
                         else:
                             self.send('10 Token is invalid')
 
+                    
+                    case '12': # 
+                        db = Database('Retrieve contacts')
+                        debug(INFO.format(info='Retrieve contacts'))
+                        db.get_contact()
+
+                    case '13': # 
+                        db = Database('Add contact')
+                        debug(INFO.format(info='Add contact'))
+                        db.add_contact()
+
+                    
                     case _:
                         pass
             else:

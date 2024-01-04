@@ -36,5 +36,7 @@ Client_udp: 5002
 - 09: Data missing
 - 10: Token invalid
 - 11: Phone call request
+- 12: Get contact
+- 13: Add contact
 - 99: Conversation not initialized
 - 99: Conversation not initialized
