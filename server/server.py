@@ -322,6 +322,7 @@ class ClientManager:
 
         :return: None
         """
+        self.remove_dead_client()
         try:
             self.__list_client.append(client_handler)
             debug(INFO.format(info=f'server.py: New client added'))
@@ -335,6 +336,7 @@ class ClientManager:
 
         :return: le nombre de client
         """
+        self.remove_dead_client()
         return len(self.__list_client)
 
     def remove_dead_client(self) -> None:
@@ -354,6 +356,7 @@ class ClientManager:
 
         :return: la liste des clients
         """
+        self.remove_dead_client()
         return self.__list_client
 
     def close(self) -> None:
