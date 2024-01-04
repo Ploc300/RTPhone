@@ -362,6 +362,7 @@ class ClientManager:
 
         :return: None
         """
+        self.remove_dead_client()
         for client_handler in self.__list_client:
             client_handler.close()
         debug(INFO.format(info=f'server.py: Client manager closed'))
