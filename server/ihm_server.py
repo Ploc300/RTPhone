@@ -3,6 +3,7 @@ from tkinter import Tk, Toplevel, ttk
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
+import os
 
 # ===== Constants =====
 HEIGHT: int = 500
@@ -82,6 +83,8 @@ class Ihm(Tk):
             :return: None
         """
         self.destroy()
+        os._exit(0)
+
 
     def open_configuration(self) -> None:
         """
