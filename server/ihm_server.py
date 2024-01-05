@@ -3,7 +3,8 @@ from tkinter import Tk, Toplevel, ttk
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
-import os
+import os, sys
+from io import StringIO
 
 # ===== Constants =====
 HEIGHT: int = 500
@@ -190,8 +191,9 @@ class Server(Toplevel):
         self.__label_console = ttk.Label(self.__frame_console, text='Console:', style='TLabel')
         self.__label_console.grid(row=0, column=0, sticky='ew')
 
-        self.__entry_console = ttk.Entry(self.__frame_console, style='TEntry', state='disabled')
-        self.__entry_console.grid(row=1, column=0, sticky='ew')
+        self.__label_console = ttk.Label(self.__frame_console, style='TLabel')
+        stdout_redirector(self.__label_console)
+        self.__label_console.grid(row=1, column=0, sticky='ew')
 
         self.__frame_buttons.grid(row=0, column=0, sticky='ew')
         self.grid_rowconfigure(1, pad=2)
@@ -199,10 +201,27 @@ class Server(Toplevel):
         self.grid_rowconfigure(3, pad=2)
 
     def close(self):
+        reset_stdout()
         self.__parent._Ihm__is_fen_server = False
         self.destroy()
 
+class ConsoleOutput(StringIO):
+    def __init__(self, label: ttk.Label):
+        super().__init__()
+        self.__label: ttk.Label = label
+
+    def write(self, string: str):
+        self.__label['text'] += string
+
+def stdout_redirector(label: ttk.Label):
+    sys.stdout = ConsoleOutput(label)
+
+def reset_stdout():
+    sys.stdout = sys.__stdout__
+
+
 def start_server(host, port, max_client):
+
     host._Ihm__listening_service = ListeningService(port, max_client)
     host._Ihm__client_manager = ClientManager()
 
@@ -219,6 +238,7 @@ def start_server(host, port, max_client):
 def stop_server(host):
     stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
     STOP_FLAG = True
+
 
     
     
