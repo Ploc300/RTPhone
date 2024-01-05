@@ -394,6 +394,7 @@ def stop_everything(listeningSocket: ListeningService, clientManager: ClientMana
     debug_verbose(f'server.py: Client manager closed')
     listeningSocket.close()
     debug_verbose(f'server.py: Listening socket closed')
+    debug(INFO.format(info=f'server.py: Server stopped'))
 
 
 # ========== Main ==========

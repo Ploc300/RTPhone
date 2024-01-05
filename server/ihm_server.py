@@ -217,7 +217,6 @@ def start_server(host, port, max_client):
 
 def stop_server(host):
     stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
-    print('Server stopped')
     STOP_FLAG = True
 
     
