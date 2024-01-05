@@ -83,6 +83,7 @@ class Ihm(Tk):
             :return: None
         """
         self.destroy()
+        os.system('cls')
         os._exit(0)
 
 
@@ -223,6 +224,9 @@ def stop_server(host):
     
 
 if __name__ == '__main__':
+    os.system('cls')
+    with open('server/logo_ascii.txt', 'r') as f:
+        print(f.read())
     ihm = Ihm(HEIGHT, WIDTH, RESIZABLE, TITLE)
     ihm.init_window()
     ihm.mainloop()
