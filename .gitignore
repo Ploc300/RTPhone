@@ -152,3 +152,4 @@ cython_debug/
 
 */test.py
 server/databases/db.sqlite3
+server/databases/db.sqlite3
