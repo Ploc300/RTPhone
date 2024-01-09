@@ -50,6 +50,7 @@ class ListeningService:
         try:  # Initialisation du socket
             self.__socket: socket = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM)
+            self.__socket.settimeout(0.5)
             debug(SUCCESS.format(success=f'server.py: Server socket created'))
         except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to create server socket'))
@@ -78,9 +79,12 @@ class ListeningService:
         debug(INFO.format(info=f'server.py: Waiting for client'))
         if self.__running and not KILL_ALL_THREAD:
             try:  # Attente des clients
-                socket_echange, _ = self.__socket.accept()
-                debug(SUCCESS.format(success=f'server.py: Client accepted'))
-                return socket_echange
+                try:
+                    socket_echange, _ = self.__socket.accept()
+                    debug(SUCCESS.format(success=f'server.py: Client accepted'))
+                    return socket_echange
+                except socket.timeout:
+                    return None
             except socket.error as e:
                 if self.__running:
                     debug(ERROR.format(error=f'server.py: Failed to accept client'))

@@ -231,16 +231,21 @@ def start_server(host, port, max_client):
     while not STOP_FLAG:
         if host._Ihm__client_manager.get_number_client() < max_client:
 
-            host._Ihm__client_handler = ClientHandler(host._Ihm__listening_service.wait())
+            socket = host._Ihm__listening_service.wait()
+            
+            if not socket is None:
+                host._Ihm__client_handler = ClientHandler()
 
-            host._Ihm__client_handler.start()
+                host._Ihm__client_handler.start()
 
-            host._Ihm__client_manager.add_client(host._Ihm__client_handler)
+                host._Ihm__client_manager.add_client(host._Ihm__client_handler)
     
 
 def stop_server(host):
-    stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
+    global STOP_FLAG
     STOP_FLAG = True
+    stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
+    print(host._Ihm__listening_service_thread.is_alive())
 
 
     
