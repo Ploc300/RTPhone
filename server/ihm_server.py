@@ -138,8 +138,8 @@ class Configuration(Toplevel):
         self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
         self.__bg_label.place(x=0, y=0)
 
-        self.__frame_port = ttk.Frame(self, bootstyle='secondary')
-        self.__frame_client_max = ttk.Frame(self, bootstyle='secondary')
+        self.__frame_port = ttk.Frame(self)
+        self.__frame_client_max = ttk.Frame(self)
 
         self.__label_server_port = ttk.Label(self.__frame_port, text='Port du serveur:', bootstyle='secondary')
         self.__label_server_port.grid(row=0, column=0, sticky='e')
@@ -193,8 +193,8 @@ class Server(Toplevel):
         self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
         self.__bg_label.place(x=0, y=0)
 
-        self.__frame_buttons = ttk.Frame(self, bootstyle='secondary')
-        self.__frame_console = ttk.Frame(self, bootstyle='secondary')
+        self.__frame_buttons = ttk.Frame(self)
+        self.__frame_console = ttk.Frame(self)
 
         self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= self.__parent._Ihm__listening_service_thread.start)
         self.__button_start.grid(row=0, column=0, sticky='ew')
@@ -225,7 +225,8 @@ class ConsoleOutput(StringIO):
         self.__label: ttk.Label = label
 
     def write(self, string: str):
-        self.__label['text'] += string
+        last_20_lines: str = '\n'.join(self.__label['text'].split('\n')[:10])
+        self.__label['text'] = string + last_20_lines
 
 def stdout_redirector(label: ttk.Label):
     sys.stdout = ConsoleOutput(label)
