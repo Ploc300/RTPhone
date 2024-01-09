@@ -99,6 +99,3 @@ def check_token(token: bytes) -> bool:
         else:
             db.remove_token(cipher_text)
     return _retour
-
-
-# ========== Main ==========
