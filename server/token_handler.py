@@ -28,8 +28,6 @@ def delete_outdated_token() -> None:
     for token in tokens:
         check_token(b64encode(token[0]))
 
-
-
 # ========== Class ==========
 # a class that repeat a function every x seconds
 class RepeatedTimer(object):
@@ -76,8 +74,6 @@ class RepeatedTimer(object):
         """
         self._timer.cancel()
         self.is_running = False
-        
-
 
 # ========== Main ==========
 RepeatedTimer(60, delete_outdated_token)
