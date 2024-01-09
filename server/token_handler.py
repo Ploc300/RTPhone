@@ -55,6 +55,7 @@ class RepeatedTimer(object):
         """
             Lance la fonction
         """
+        debug_verbose(DEBUG.format(debug='token_handler.py: Thread running'))
         self.is_running = False
         self.start()
         self.function(*self.args, **self.kwargs)
@@ -72,6 +73,7 @@ class RepeatedTimer(object):
         """
             Arrête le timer
         """
+        debug_verbose(DEBUG.format(debug='token_handler.py: Thread stopped'))
         self._timer.cancel()
         self.is_running = False
 
