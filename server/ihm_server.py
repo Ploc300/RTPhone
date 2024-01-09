@@ -1,5 +1,5 @@
 # ===== Import =====
-from tkinter import Tk, Toplevel, ttk
+from tkinter import Tk, Toplevel, ttk, PhotoImage
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
@@ -9,7 +9,7 @@ from io import StringIO
 # ===== Constants =====
 dotenv.load_dotenv()
 HEIGHT: int = 500
-WIDTH: int = 200
+WIDTH: int = 250
 RESIZABLE: bool = False
 
 DEBUG: bool = bool(os.getenv('DEBUG'))
@@ -40,12 +40,14 @@ class Ihm(Tk):
         self.__height = height
         self.__width = width
         self.__title = title
+        self.__bg_image: PhotoImage = PhotoImage(file='logo/RTPhone_logo.png')
+        
 
+        self.iconbitmap('logo/RTPhone_logo.ico')
         self.resizable(RESIZABLE, RESIZABLE)
         self.title(self.__title)
         self.geometry(f'{self.__width}x{self.__height}')
         self.protocol('WM_DELETE_WINDOW', self.close) # Handle the close native close button
-        self.attributes('-toolwindow', True) # Remove the maximize and minimize button
         self.attributes('-topmost', True) # Put the window on top of the others
 
         style = Style(theme='vapor')
@@ -71,6 +73,9 @@ class Ihm(Tk):
 
             :return: None
         """
+        self.__bg_label = ttk.Label(self, image=self.__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
         self.__button_configuration = ttk.Button(self, text = 'Configuration', bootstyle='primary', command = self.open_configuration)
         self.__button_configuration.grid(row = 0, column = 0)
 
@@ -130,6 +135,9 @@ class Configuration(Toplevel):
         server_port = self.__parent._Ihm__server_port
         server_client_max = self.__parent._Ihm__server_client_max
 
+        self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
         self.__frame_port = ttk.Frame(self, bootstyle='secondary')
         self.__frame_client_max = ttk.Frame(self, bootstyle='secondary')
 
@@ -182,6 +190,9 @@ class Server(Toplevel):
         self.init_window()
 
     def init_window(self):
+        self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
         self.__frame_buttons = ttk.Frame(self, bootstyle='secondary')
         self.__frame_console = ttk.Frame(self, bootstyle='secondary')
 
