@@ -25,8 +25,8 @@ class Ihm(Thread):
         self.__main = ttk.Frame(self.__root,padding=10,style="info.TFrame")
         self.__main.pack(side=TOP,expand=True,fill=BOTH)
         ##navbar##
-        self.__img = ttk.PhotoImage(file="img/rtphone.png")
-        self.__rt_phone = ttk.Label(self.__navbar,image=self.__img,style="danger.TLabel")
+        self.__img = ttk.PhotoImage("img/rtphone.png")
+        self.__rt_phone = ttk.Label(self.__navbar,image=self.__img)
         self.__rt_phone.grid(row=0,column=0)
         self.__param = ttk.Button(self.__navbar,text="parametre",style="danger.TButton")
         self.__param.grid(row=0,column=1)
