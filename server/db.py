@@ -27,7 +27,7 @@ class Database:
         except Exception as e:
             debug(f'db.py: Failed to log database usage')
             debug_verbose(f'db.py: {e}')
-            exit(-1)
+            
         self.connect()
 
     def connect(self) -> None:
@@ -40,14 +40,14 @@ class Database:
         except Exception as e:
             debug(f'db.py: Failed to connect to database')
             debug_verbose(f'db.py: {e}')
-            exit(11)
+            
         try:
             self.__cursor = self.__connection.cursor()
             debug(f'db.py: Created cursor')
         except Exception as e:
             debug(f'db.py: Failed to create cursor')
             debug_verbose(f'db.py: {e}')
-            exit(12)
+            
 
     def auth_username(self, login: str, password: str) -> bool:
         """
