@@ -24,7 +24,6 @@ SUCCESS: str = '\033[92m[SUCCESS]\033[0m {success}'
 DEBUG: str = '\033[94m[DEBUG]\033[0m {debug}'
 INFO: str = '\033[96m[INFO]\033[0m {info}'
 
-
 # ========== Function ==========
 
 
@@ -283,6 +282,11 @@ class ClientHandler(Thread):
                             user_set: set = set()
                             for user in message['users']:
                                 user_set.add(user)
+                            """
+                                Need to send a call request to the other client
+                            """
+                            for user in user_set:
+                                pass
                             CallServer(user_set).start()
 
                         else:
