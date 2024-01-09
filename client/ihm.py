@@ -3,6 +3,7 @@ from appel_udp import Client_udp
 from client import Client_tcp
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from tkinter import PhotoImage
 # ========== Class ==========
 
 ##interface graphique
@@ -25,7 +26,8 @@ class Ihm(Thread):
         self.__main = ttk.Frame(self.__root,padding=10,style="info.TFrame")
         self.__main.pack(side=TOP,expand=True,fill=BOTH)
         ##navbar##
-        self.__img = ttk.PhotoImage("img/rtphone.png")
+        self.__img = PhotoImage(file="client/img/rtphone.png")
+        self.__img = self.__img.subsample(4) #mechanically, here it is adjusted to 32 instead of 320
         self.__rt_phone = ttk.Label(self.__navbar,image=self.__img)
         self.__rt_phone.grid(row=0,column=0)
         self.__param = ttk.Button(self.__navbar,text="parametre",style="danger.TButton")
