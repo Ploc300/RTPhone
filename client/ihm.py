@@ -22,7 +22,7 @@ class Ihm(Thread):
         self.__root.geometry(self.alignstr)
         ##frames##
         self.__navbar = ttk.Frame(self.__root,padding=10,style="danger.TFrame")
-        self.__navbar.pack(side=TOP,fill=BOTH,ipady=50)
+        self.__navbar.pack(side=TOP,fill=BOTH,ipady=10)
         self.__main = ttk.Frame(self.__root,padding=10,style="info.TFrame")
         self.__main.pack(side=TOP,expand=True,fill=BOTH)
         ##navbar##
@@ -30,8 +30,14 @@ class Ihm(Thread):
         self.__img = self.__img.subsample(4) #mechanically, here it is adjusted to 32 instead of 320
         self.__rt_phone = ttk.Label(self.__navbar,image=self.__img)
         self.__rt_phone.grid(row=0,column=0)
-        self.__param = ttk.Button(self.__navbar,text="parametre",style="danger.TButton")
-        self.__param.grid(row=0,column=1)
+        self.__paramp = ttk.Button(self.__navbar,text="profils",style="danger.TButton")
+        self.__paramp.grid(row=0,column=1,sticky=E)
+        self.__param1 = ttk.Button(self.__navbar,text="appel",style="danger.TButton")
+        self.__param1.grid(row=0,column=2,sticky=E)
+        self.__param2 = ttk.Button(self.__navbar,text="contact",style="danger.TButton")
+        self.__param2.grid(row=0,column=3,sticky=E)
+        self.__param3 = ttk.Button(self.__navbar,text="option",style="danger.TButton")
+        self.__param3.grid(row=0,column=4,sticky=E)
 
 
 if __name__ == "__main__":
