@@ -3,13 +3,16 @@ from tkinter import Tk, Toplevel, ttk
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
-import os, sys
+import os, sys, dotenv
 from io import StringIO
 
 # ===== Constants =====
+dotenv.load_dotenv()
 HEIGHT: int = 500
 WIDTH: int = 200
 RESIZABLE: bool = False
+
+DEBUG: bool = bool(os.getenv('DEBUG'))
 
 TITLE: str = 'Serveur'
 
@@ -84,7 +87,7 @@ class Ihm(Tk):
             :return: None
         """
         self.destroy()
-        os.system('cls')
+        if not DEBUG: os.system('cls')
         os._exit(0)
 
 
