@@ -1,14 +1,18 @@
 # ===== Import =====
-from tkinter import Tk, Toplevel, ttk
+from tkinter import Tk, Toplevel, ttk, PhotoImage
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
-import os
+import os, sys, dotenv
+from io import StringIO
 
 # ===== Constants =====
+dotenv.load_dotenv()
 HEIGHT: int = 500
-WIDTH: int = 200
+WIDTH: int = 250
 RESIZABLE: bool = False
+
+DEBUG: bool = bool(os.getenv('DEBUG'))
 
 TITLE: str = 'Serveur'
 
@@ -36,12 +40,14 @@ class Ihm(Tk):
         self.__height = height
         self.__width = width
         self.__title = title
+        self.__bg_image: PhotoImage = PhotoImage(file='logo/RTPhone_logo.png')
+        
 
+        self.iconbitmap('logo/RTPhone_logo.ico')
         self.resizable(RESIZABLE, RESIZABLE)
         self.title(self.__title)
         self.geometry(f'{self.__width}x{self.__height}')
         self.protocol('WM_DELETE_WINDOW', self.close) # Handle the close native close button
-        self.attributes('-toolwindow', True) # Remove the maximize and minimize button
         self.attributes('-topmost', True) # Put the window on top of the others
 
         style = Style(theme='vapor')
@@ -67,6 +73,9 @@ class Ihm(Tk):
 
             :return: None
         """
+        self.__bg_label = ttk.Label(self, image=self.__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
         self.__button_configuration = ttk.Button(self, text = 'Configuration', bootstyle='primary', command = self.open_configuration)
         self.__button_configuration.grid(row = 0, column = 0)
 
@@ -83,7 +92,7 @@ class Ihm(Tk):
             :return: None
         """
         self.destroy()
-        os.system('cls')
+        if not DEBUG: os.system('cls')
         os._exit(0)
 
 
@@ -126,8 +135,11 @@ class Configuration(Toplevel):
         server_port = self.__parent._Ihm__server_port
         server_client_max = self.__parent._Ihm__server_client_max
 
-        self.__frame_port = ttk.Frame(self, bootstyle='secondary')
-        self.__frame_client_max = ttk.Frame(self, bootstyle='secondary')
+        self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
+        self.__frame_port = ttk.Frame(self)
+        self.__frame_client_max = ttk.Frame(self)
 
         self.__label_server_port = ttk.Label(self.__frame_port, text='Port du serveur:', bootstyle='secondary')
         self.__label_server_port.grid(row=0, column=0, sticky='e')
@@ -178,8 +190,11 @@ class Server(Toplevel):
         self.init_window()
 
     def init_window(self):
-        self.__frame_buttons = ttk.Frame(self, bootstyle='secondary')
-        self.__frame_console = ttk.Frame(self, bootstyle='secondary')
+        self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
+        self.__frame_buttons = ttk.Frame(self)
+        self.__frame_console = ttk.Frame(self)
 
         self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= self.__parent._Ihm__listening_service_thread.start)
         self.__button_start.grid(row=0, column=0, sticky='ew')
@@ -190,8 +205,9 @@ class Server(Toplevel):
         self.__label_console = ttk.Label(self.__frame_console, text='Console:', style='TLabel')
         self.__label_console.grid(row=0, column=0, sticky='ew')
 
-        self.__entry_console = ttk.Entry(self.__frame_console, style='TEntry', state='disabled')
-        self.__entry_console.grid(row=1, column=0, sticky='ew')
+        self.__label_console = ttk.Label(self.__frame_console, style='TLabel')
+        stdout_redirector(self.__label_console)
+        self.__label_console.grid(row=1, column=0, sticky='ew')
 
         self.__frame_buttons.grid(row=0, column=0, sticky='ew')
         self.grid_rowconfigure(1, pad=2)
@@ -199,26 +215,53 @@ class Server(Toplevel):
         self.grid_rowconfigure(3, pad=2)
 
     def close(self):
+        reset_stdout()
         self.__parent._Ihm__is_fen_server = False
         self.destroy()
 
+class ConsoleOutput(StringIO):
+    def __init__(self, label: ttk.Label):
+        super().__init__()
+        self.__label: ttk.Label = label
+
+    def write(self, string: str):
+        try:
+            last_20_lines: str = '\n'.join(self.__label['text'].split('\n')[:10])
+            self.__label['text'] = string + last_20_lines
+        except Exception as e:
+            reset_stdout()
+
+def stdout_redirector(label: ttk.Label):
+    sys.stdout = ConsoleOutput(label)
+
+def reset_stdout():
+    sys.stdout = sys.__stdout__
+
+
 def start_server(host, port, max_client):
+
     host._Ihm__listening_service = ListeningService(port, max_client)
     host._Ihm__client_manager = ClientManager()
 
     while not STOP_FLAG:
         if host._Ihm__client_manager.get_number_client() < max_client:
 
-            host._Ihm__client_handler = ClientHandler(host._Ihm__listening_service.wait())
+            socket = host._Ihm__listening_service.wait()
+            
+            if not socket is None:
+                host._Ihm__client_handler = ClientHandler()
 
-            host._Ihm__client_handler.start()
+                host._Ihm__client_handler.start()
 
-            host._Ihm__client_manager.add_client(host._Ihm__client_handler)
+                host._Ihm__client_manager.add_client(host._Ihm__client_handler)
     
 
 def stop_server(host):
-    stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
+    global STOP_FLAG
     STOP_FLAG = True
+    stop_everything(listeningSocket=host._Ihm__listening_service, clientManager=host._Ihm__client_manager)
+    print(host._Ihm__listening_service_thread.is_alive())
+
 
     
     

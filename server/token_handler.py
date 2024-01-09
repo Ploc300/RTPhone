@@ -77,5 +77,12 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
+
 # ========== Main ==========
-RepeatedTimer(60, delete_outdated_token)
+timer = RepeatedTimer(60, delete_outdated_token)
+
+def stop_timer() -> None:
+    """
+        Arrête le timer
+    """
+    timer.stop()

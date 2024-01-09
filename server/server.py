@@ -1,21 +1,19 @@
 # ========== Import ==========
-import socket
-import pyaudio
-import dotenv
-import os
-import base64
+import socket, pyaudio, dotenv, os, base64, threading
 from threading import Thread
 from authentification import auth, generate_token, check_token
 from debug import debug, debug_verbose
 from db import Database
 from json import loads, dumps
-import token_handler
+import token_handler # the file automatically run the function to delete outdated token
 from callserver import CallServer
 
 
 # ========== Constant ==========
 dotenv.load_dotenv()
 POSSIBLE_CODE: list = [str(i) if i > 10 else '0'+str(i) for i in range(0, 100)]
+
+KILL_ALL_THREAD: bool = False
 
 # ========== Color ==========
 ERROR: str = '\033[91m[ERROR]\033[0m {error}'
@@ -52,6 +50,7 @@ class ListeningService:
         try:  # Initialisation du socket
             self.__socket: socket = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM)
+            self.__socket.settimeout(0.5)
             debug(SUCCESS.format(success=f'server.py: Server socket created'))
         except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to create server socket'))
@@ -78,11 +77,14 @@ class ListeningService:
             :return: le socket d'échange avec le client
         """
         debug(INFO.format(info=f'server.py: Waiting for client'))
-        if self.__running:
+        if self.__running and not KILL_ALL_THREAD:
             try:  # Attente des clients
-                socket_echange, _ = self.__socket.accept()
-                debug(SUCCESS.format(success=f'server.py: Client accepted'))
-                return socket_echange
+                try:
+                    socket_echange, _ = self.__socket.accept()
+                    debug(SUCCESS.format(success=f'server.py: Client accepted'))
+                    return socket_echange
+                except socket.timeout:
+                    return None
             except socket.error as e:
                 if self.__running:
                     debug(ERROR.format(error=f'server.py: Failed to accept client'))
@@ -181,7 +183,7 @@ class ClientHandler(Thread):
         message: str
         buffer: str
         code: str = '99'
-        while code != '00':  # Tant que le client n'a pas envoyé le code de fin
+        while code != '00' and not KILL_ALL_THREAD:  # Tant que le client n'a pas envoyé le code de fin
             buffer: str = self.recevoir()
             try:
                 # Récupération du code et du message
@@ -417,6 +419,10 @@ def stop_everything(listeningSocket: ListeningService, clientManager: ClientMana
     listeningSocket.close()
     debug_verbose(f'server.py: Listening socket closed')
     debug(INFO.format(info=f'server.py: Server stopped'))
+    # kill all threads
+    KILL_ALL_THREAD = True
+    token_handler.stop_timer()
+    
 
 
 # ========== Main ==========
