@@ -225,8 +225,11 @@ class ConsoleOutput(StringIO):
         self.__label: ttk.Label = label
 
     def write(self, string: str):
-        last_20_lines: str = '\n'.join(self.__label['text'].split('\n')[:10])
-        self.__label['text'] = string + last_20_lines
+        try:
+            last_20_lines: str = '\n'.join(self.__label['text'].split('\n')[:10])
+            self.__label['text'] = string + last_20_lines
+        except Exception as e:
+            reset_stdout()
 
 def stdout_redirector(label: ttk.Label):
     sys.stdout = ConsoleOutput(label)
