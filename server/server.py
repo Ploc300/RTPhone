@@ -54,21 +54,21 @@ class ListeningService:
             self.__socket: socket = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM)
             debug(SUCCESS.format(success=f'server.py: Server socket created'))
-        except Exception as e:
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to create server socket'))
             debug_verbose(f'server.py: {e}')
 
         try:  # Bind du socket
             self.__socket.bind(('', self.__port))
             debug(SUCCESS.format(success=f'server.py: Server socket binded'))
-        except Exception as e:
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to bind server socket'))
             debug_verbose(f'server.py: {e}')
 
         try:  # Mise en écoute du socket
             self.__socket.listen(self.__max_client)
             debug(SUCCESS.format(success=f'server.py: Socket listening'))
-        except Exception as e:
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to listen socket'))
             debug_verbose(f'server.py: {e}')
 
@@ -84,7 +84,7 @@ class ListeningService:
                 socket_echange, _ = self.__socket.accept()
                 debug(SUCCESS.format(success=f'server.py: Client accepted'))
                 return socket_echange
-            except Exception as e:
+            except socket.error as e:
                 if self.__running:
                     debug(ERROR.format(error=f'server.py: Failed to accept client'))
                     debug_verbose(f'server.py: {e}')
@@ -115,7 +115,6 @@ class ClientHandler(Thread):
 
         :param socket_echange: le socket d'échange avec le client
     """
-
     def __init__(self, socket_echange: socket) -> None:
         """
             Initialise le client:
@@ -129,7 +128,7 @@ class ClientHandler(Thread):
         try:  # Initialisation du socket
             self.__socket_echange: socket = socket_echange
             debug(SUCCESS.format(success=f'server.py: Socket created'))
-        except Exception as e:
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to create socket for client'))
             debug_verbose(f'server.py: {e}')
 
@@ -144,14 +143,14 @@ class ClientHandler(Thread):
         try:  # Encodage du message
             encoded_msg = msg.encode("utf-8")
             debug(INFO.format(info=f'server.py: Message successfully encoded'))
-        except Exception as e:
+        except UnicodeEncodeError as e:
             debug(ERROR.format(error=f'server.py: Failed to encode message'))
             debug_verbose(f'server.py: {e}')
 
         try:  # Envoi du message
             self.__socket_echange.send(encoded_msg)
             debug(INFO.format(info=f'server.py: Message successfully sent'))
-        except Exception as e:
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to send message'))
             debug_verbose(f'server.py: {e}')
 
@@ -164,8 +163,13 @@ class ClientHandler(Thread):
         try:  # Réception du message
             msg: bytes = self.__socket_echange.recv(1024)
             debug(INFO.format(info=f'server.py: Message successfully received'))
-            return msg.decode("utf-8")
-        except Exception as e:
+            try:
+                return msg.decode("utf-8")
+            except UnicodeDecodeError as e:
+                debug(ERROR.format(error=f'server.py: Failed to decode message'))
+                debug_verbose(f'server.py: {e}')
+                return '98 Failed to decode message'
+        except socket.error as e:
             debug(ERROR.format(error=f'server.py: Failed to receive message'))
             debug_verbose(f'server.py: {e}')
 
@@ -204,6 +208,11 @@ class ClientHandler(Thread):
                     case '99':  # Initialisation du client
                         debug(INFO.format(
                             info=f'server.py: Initializing client connection'))
+                    case '98': # Message is not UTF-8
+                        debug(INFO.format(
+                            info=f'server.py: Message is not UTF-8'))
+                        self.send('98 Message is not UTF-8')
+
                     case '01':  # Authentification
                         debug(INFO.format(info=f'server.py: Authenticating client'))
                         try:
