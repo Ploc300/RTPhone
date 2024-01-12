@@ -3,6 +3,8 @@ import socket
 from threading import Thread
 import sys
 import json
+import appel_udp
+import reseption_appel
 
 # ========== Class ==========
 
@@ -25,6 +27,7 @@ class Client_tcp:
     def deconnect_tcp(self)->None:
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
+        self.__reseption_appel.stop()
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
@@ -53,6 +56,7 @@ class Client_tcp:
         data = buffer[3:]
         if code == '03':
             self.__token = json.loads(data)['token']
+            self.__reseption_appel = reseption_appel.reception(self.ip_serveur, 5003).start()
         else:
             raise Exception(data)
     
@@ -86,6 +90,18 @@ class Client_tcp:
         self.send('12')
         contacts = self.receive()
         return contacts
+    
+    def appelle(self, usernames: list)->None:
+        data: dict = {'token': self.__token, 'users': usernames}
+        try:
+            self.envoie(f'11 {json.dumps(data)}')
+            self.Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
+            self.Client_udp.start()
+        except Exception as ex:
+            print(ex)
+    
+    def stop_appel(self)->None:
+        self.Client_udp.sraracroche()
 
 
 
@@ -93,12 +109,15 @@ class Client_tcp:
 # ========== Main ==========
 def main():
     # declaration des variables
-    ip_serveur: str = '127.0.0.1'
+    ip_serveur: str = '172.20.10.3'
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
     client.connect_tcp()
     client.auth('test', 'test')
+    client.appelle(['admin'])
+    input('input')
+    client.stop_appel()
     client.deconnect_tcp()
 
 
