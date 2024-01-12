@@ -2,9 +2,7 @@
 from debug import debug, debug_verbose
 from json import loads, dumps
 from threading import Thread
-import socket
-import pyaudio
-
+import socket, time, pyaudio
 
 # ========== Constant ==========
 
@@ -147,12 +145,100 @@ class CallServer:
         self.__receiving_socket.close()
         self.__sending_socket.close()
 
+class CallRequest:
+    def __init__(self, users: set, source: str) -> None:
+        """
+            Initialise la requête d'appel
+
+            :param users: Liste des utilisateurs a appeler
+            :param source: Adresse de l'utilisateur source
+
+            :return: None
+        """
+        self.__users: set = users
+        self.__source: str = source
+        self.__port: int = 5003
+        self.__socket: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.__socket.bind(('', self.__port))
+
+    def send(self, msg: str, dest: str) -> None:
+        """
+            Envoi un message au client
+
+            :param msg: le message à envoyer
+
+            :return: None
+        """
+        try:  # Encodage du message
+            encoded_msg = msg.encode("utf-8")
+            debug(INFO.format(info=f'callserver.py: Message successfully encoded'))
+        except UnicodeEncodeError as e:
+            debug(ERROR.format(error=f'callserver.py: Failed to encode message'))
+            debug_verbose(f'callserver.py: {e}')
+
+        try:  # Envoi du message
+            self.__socket.sendto(encoded_msg, (dest, self.__port))
+            debug(INFO.format(info=f'callserver.py: Message successfully sent'))
+        except socket.error as e:
+            debug(ERROR.format(error=f'callserver.py: Failed to send message'))
+            debug_verbose(f'callserver.py: {e}')
+        
+
+    def receive(self) -> tuple:
+        """
+            Recoit un message du client
+
+            :return: le message reçu
+        """
+        _return = None
+        try:  # Réception du message
+            msg, addr = self.__socket.recvfrom(1024)
+            debug(INFO.format(info=f'callserver.py: Message successfully received'))
+            try:
+                _return = (msg.decode("utf-8"), addr)
+                debug(INFO.format(info=f'callserver.py: Message successfully decoded'))
+            except UnicodeDecodeError as e:
+                debug(ERROR.format(error=f'callserver.py: Failed to decode message'))
+                debug_verbose(f'callserver.py: {e}')
+        except socket.error as e:
+            debug(ERROR.format(error=f'server.py: Failed to receive message'))
+            debug_verbose(f'callserver.py: {e}')
+        return _return
+    
+    def requests(self) -> set:
+        for user in self.__users:
+            if user != self.__source:
+                tmp_users: set = self.__users.copy()
+                tmp_users.remove(user)
+                data: dict = {'users': tmp_users}
+                self.send(f'14 {dumps(data)}', user)
+        
+        answers: set = set()
+        start: float = time.time()
+        index = 1
+        while time.time() - start < 10 and index < len(self.__users):
+            msg, addr = self.receive()
+            code, data = msg.split(' ', 1)
+            if addr in self.__users:
+                match code:
+                    case '15':
+                        debug(INFO.format(info=f'callserver.py: {addr} accepted the call'))
+                        answers.add(addr)
+                    case 16:
+                        debug(INFO.format(info=f'callserver.py: {addr} refused the call'))
+            index += 1
+        return answers
+             
+                
+    
+        
+        
+    
+
+
+
+            
+
 # ========== Main ==========
-if __name__ == '__main__':
-    clients: set = set()
-    clients.add(('127.0.0.1', 5002))
-    server = CallServer(clients)
-    server.start()
-    input('Press enter to stop')
-    server.stop()
+
 

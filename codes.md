@@ -1,11 +1,15 @@
-# Ports
+# Codes
+
+## Ports
+
 Server_tcp: 5000
 Server_udp: 5001
 Client_udp: 5002
+CallRequest: 5003
 
-# Errors codes
+## Errors codes
 
-## Server
+### Server
 
 - 2: Failed to create socket
 - 3: Failed to bind socket
@@ -18,11 +22,7 @@ Client_udp: 5002
 - 10: Unknown message code
 - 11: Failed to connect to database
 
-
-
-
-
-# Message codes
+## Message codes
 
 - 00: Terminate connection
 - 01: Connection request
@@ -38,5 +38,8 @@ Client_udp: 5002
 - 11: Phone call request
 - 12: Get contact
 - 13: Add contact
+- 14: Call Request
+- 15: Call Request Accepted
+- 16: Call Request Refused
 - 99: Conversation not initialized
 - 99: Conversation not initialized
