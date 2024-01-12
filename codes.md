@@ -38,5 +38,8 @@ CallRequest: 5003
 - 11: Phone call request
 - 12: Get contact
 - 13: Add contact
+- 14: Call Request
+- 15: Call Request Accepted
+- 16: Call Request Refused
 - 99: Conversation not initialized
 - 99: Conversation not initialized
