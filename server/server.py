@@ -281,15 +281,11 @@ class ClientHandler(Thread):
                         if token_validity:
                             debug(INFO.format(
                                 info=f'server.py: Client token is valid'))
-                            user_set: set = set()
+                            users_set: set = set()
                             for user in message['users']:
-                                user_set.add(user)
-                            """
-                                Need to send a call request to the other client
-                            """
-                            for user in user_set:
-                                pass
-                            CallServer(user_set).start()
+                                users_set.add(user)
+                            users_ok: set = CallRequest(users_set, message['username']).requests()
+                            CallServer(users_ok).start()
 
                         else:
                             data = {'message': 'Token is invalid'}

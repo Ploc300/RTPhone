@@ -2,9 +2,7 @@
 from debug import debug, debug_verbose
 from json import loads, dumps
 from threading import Thread
-import socket
-import pyaudio
-
+import socket, time, pyaudio
 
 # ========== Constant ==========
 
@@ -186,7 +184,7 @@ class CallRequest:
             debug_verbose(f'callserver.py: {e}')
         
 
-    def receive(self) -> tuple(str, str):
+    def receive(self) -> tuple:
         """
             Recoit un message du client
 
@@ -207,6 +205,32 @@ class CallRequest:
             debug_verbose(f'callserver.py: {e}')
         return _return
     
+    def requests(self) -> set:
+        for user in self.__users:
+            if user != self.__source:
+                tmp_users: set = self.__users.copy()
+                tmp_users.remove(user)
+                data: dict = {'users': tmp_users}
+                self.send(f'14 {dumps(data)}', user)
+        
+        answers: set = set()
+        start: float = time.time()
+        index = 1
+        while time.time() - start < 10 and index < len(self.__users):
+            msg, addr = self.receive()
+            code, data = msg.split(' ', 1)
+            if addr in self.__users:
+                match code:
+                    case '15':
+                        debug(INFO.format(info=f'callserver.py: {addr} accepted the call'))
+                        answers.add(addr)
+                    case 16:
+                        debug(INFO.format(info=f'callserver.py: {addr} refused the call'))
+            index += 1
+        return answers
+             
+                
+    
         
         
     
@@ -216,11 +240,5 @@ class CallRequest:
             
 
 # ========== Main ==========
-if __name__ == '__main__':
-    clients: set = set()
-    clients.add(('127.0.0.1', 5002))
-    server = CallServer(clients)
-    server.start()
-    input('Press enter to stop')
-    server.stop()
+
 
