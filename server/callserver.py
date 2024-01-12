@@ -79,9 +79,17 @@ class CallServer:
         buffer: bytes = b''
         if not self.__receiving_socket is None:
             buffer, addr = self.__receiving_socket.recvfrom(self.frames_per_buffer*2)
-            if not addr in self.__clients:
-                buffer = b''
-        print(buffer)
+            if not addr[0] in self.__clients:
+                buffer = b'Nothing or not a client'
+            else:
+                if buffer == b'42':
+                    self.__clients.remove(addr[0])
+                    debug(INFO.format(info=f'callserver.py: {addr[0]} disconnected'))
+                    if len(self.__clients) == 0:
+                        debug(INFO.format(info=f'callserver.py: No more clients connected'))
+                        self.stop()
+                debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
+                debug_verbose(f'callserver.py: {buffer}')
         return buffer
     
     def audio_input(self) -> None:
@@ -219,6 +227,7 @@ class CallRequest:
                 self.send(f'14 {dumps(list(data))}', user)
         
         answers: set = set()
+        answers.add(self.__source)
         start: float = time.time()
         index = 1
         while time.time() - start < 10 and index < len(self.__users): # laisse 10 secondes aux utilisateurs pour répondre
@@ -229,7 +238,7 @@ class CallRequest:
                     case '15':
                         debug(INFO.format(info=f'callserver.py: {addr} accepted the call'))
                         answers.add(addr)
-                    case 16:
+                    case '16':
                         debug(INFO.format(info=f'callserver.py: {addr} refused the call'))
             index += 1
         self.close()

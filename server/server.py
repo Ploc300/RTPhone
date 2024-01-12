@@ -76,7 +76,7 @@ class ListeningService:
 
             :return: le socket d'échange avec le client
         """
-        debug(INFO.format(info=f'server.py: Waiting for client'))
+        # debug(INFO.format(info=f'server.py: Waiting for client'))
         if self.__running and not KILL_ALL_THREAD:
             try:  # Attente des clients
                 try:
