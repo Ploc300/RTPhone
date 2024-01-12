@@ -284,7 +284,8 @@ class ClientHandler(Thread):
                             users_set: set = set()
                             for user in message['users']:
                                 users_set.add(user)
-                            users_ok: set = CallRequest(users_set, message['username']).requests()
+                            debug_verbose(f'server.py: Users to call: {users_set} , {self.__socket_echange.getpeername()[0]}')
+                            users_ok: set = CallRequest(users_set, self.__socket_echange.getpeername()[0]).requests()
                             CallServer(users_ok).start()
 
                         else:

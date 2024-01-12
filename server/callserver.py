@@ -206,17 +206,22 @@ class CallRequest:
         return _return
     
     def requests(self) -> set:
+        """
+            Envoie une requête d'appel à tous les utilisateurs
+
+            :return: Set des utilisateurs ayant accepté l'appel
+        """
         for user in self.__users:
             if user != self.__source:
                 tmp_users: set = self.__users.copy()
                 tmp_users.remove(user)
                 data: dict = {'users': tmp_users}
-                self.send(f'14 {dumps(data)}', user)
+                self.send(f'14 {dumps(list(data))}', user)
         
         answers: set = set()
         start: float = time.time()
         index = 1
-        while time.time() - start < 10 and index < len(self.__users):
+        while time.time() - start < 10 and index < len(self.__users): # laisse 10 secondes aux utilisateurs pour répondre
             msg, addr = self.receive()
             code, data = msg.split(' ', 1)
             if addr in self.__users:
