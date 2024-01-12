@@ -6,7 +6,7 @@ from debug import debug, debug_verbose
 from db import Database
 from json import loads, dumps
 import token_handler # the file automatically run the function to delete outdated token
-from callserver import CallServer
+from callserver import CallServer, CallRequest
 
 
 # ========== Constant ==========
@@ -155,7 +155,7 @@ class ClientHandler(Thread):
             debug(ERROR.format(error=f'server.py: Failed to send message'))
             debug_verbose(f'server.py: {e}')
 
-    def recevoir(self) -> str:
+    def receive(self) -> str:
         """
             Recoit un message du client
 
@@ -184,7 +184,7 @@ class ClientHandler(Thread):
         buffer: str
         code: str = '99'
         while code != '00' and not KILL_ALL_THREAD:  # Tant que le client n'a pas envoyé le code de fin
-            buffer: str = self.recevoir()
+            buffer: str = self.receive()
             try:
                 # Récupération du code et du message
                 code, message = buffer[0:2], buffer[3:]
