@@ -227,7 +227,16 @@ class CallRequest:
                     case 16:
                         debug(INFO.format(info=f'callserver.py: {addr} refused the call'))
             index += 1
+        self.close()
         return answers
+    
+    def close(self) -> None:
+        """
+            Ferme le socket
+
+            :return: None
+        """
+        self.__socket.close()
              
                 
     
