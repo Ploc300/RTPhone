@@ -14,6 +14,10 @@ class Client_tcp:
         self.socket_client = None
         self.__token: str = None
         self.__my_name: str = None
+        self.__erreur_con : str = None
+        self.__erreur_auth : str = None
+        self.__reception_appel : str = None
+        self.__authentifier: bool = False
 
     def connect_tcp(self)->None:
         try:
@@ -21,7 +25,7 @@ class Client_tcp:
             self.socket_client.settimeout(5)
             self.socket_client.connect((self.ip_serveur, self.port_serveur))
         except Exception as ex:
-            print("le serveur fais dodo  :", ex)
+            self.__erreur_con = f"le serveur est inateniable : {ex}"
             sys.exit(1)
 
     def deconnect_tcp(self)->None:
@@ -41,35 +45,44 @@ class Client_tcp:
             return msg.decode('utf-8')
             
         except Exception as ex:
-            print("le serveur nous boycotte, quel connard :", ex)
+            print("le serveur ne reppons plus :", ex)
 
     
     def auth(self, mdp, nom: str = '', mail: str = '')->None:
-        if nom != '':
-            data: dict = {'username': nom, 'password': mdp}
-            self.envoie(f'01 {json.dumps(data)}')
-        else:
-            data: dict = {'username': mail, 'password': mdp}
-            self.envoie(f'01 {json.dumps(data)}')
-        buffer = self.receive()
-        code = buffer[:2]
-        data = buffer[3:]
-        if code == '03':
-            self.__token = json.loads(data)['token']
-            self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
-            self.__my_name = nom
-            authentifier = True
-        elif code == '04':
-            authentifier = False
-        else:
-            print('Code error in auth func')
-        return authentifier
+        try:
+            if nom != '':
+                data: dict = {'username': nom, 'password': mdp}
+                self.envoie(f'01 {json.dumps(data)}')
+            else:
+                data: dict = {'username': mail, 'password': mdp}
+                self.envoie(f'01 {json.dumps(data)}')
+            buffer = self.receive()
+            code = buffer[:2]
+            data = buffer[3:]
+            if code == '03':
+                self.__token = json.loads(data)['token']
+                self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
+                self.__my_name = nom
+                self.__authentifier = True
+            elif code == '04':
+                self.__authentifier = False
+        except Exception as ex:
+            self.__erreur_auth = f"authentification erreur : {ex}"
     
     def get_phone(self, username: str)->str:
         data: dict = {'token': self.__token, 'username': username}
         self.envoie(f'02 {json.dumps(data)}')
         phone = self.receive()
         return phone
+    
+    def get_auth(self)->bool:
+        return self.__authentifier
+    
+    def get_err_con(self)->str:
+        return self.__erreur_con
+    
+    def get_err_auth(self)->str:
+        return self.__erreur_auth
     
     def change_phone(self)->None:
         self.send('03')
