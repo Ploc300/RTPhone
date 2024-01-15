@@ -62,7 +62,7 @@ class Client_udp(Thread):
                         self.__socket_echange.close()
                         print("Connexion fermée")
 
-        def sraracroche(self):
+        def racroche(self):
                 self.__socket_echange.sendto(b'42',(self.__ip_serveur, self.__port_serveur))
                 self.__appel = False
                 self.__socket_echange.close()

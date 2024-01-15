@@ -60,7 +60,7 @@ class Client_tcp:
         else:
             raise Exception(data)
     
-    def get_phone(self, username: str)->None:
+    def get_phone(self, username: str)->str:
         data: dict = {'token': self.__token, 'username': username}
         self.envoie(f'02 {json.dumps(data)}')
         phone = self.receive()
@@ -86,12 +86,12 @@ class Client_tcp:
         contacts = self.receive()
         return contacts
 
-    def get_contact(self)->None:
+    def get_contact(self)->list:
         self.send('12')
         contacts = self.receive()
         return contacts
     
-    def appelle(self, usernames: list)->None:
+    def appelle(self, usernames: list)->list:
         data: dict = {'token': self.__token, 'users': usernames}
         try:
             self.envoie(f'11 {json.dumps(data)}')
@@ -101,7 +101,7 @@ class Client_tcp:
             print(ex)
     
     def stop_appel(self)->None:
-        self.Client_udp.sraracroche()
+        self.Client_udp.racroche()
 
 
 
@@ -115,9 +115,7 @@ def main():
     client = Client_tcp(ip_serveur, port_serveur)
     client.connect_tcp()
     client.auth('test', 'test')
-    client.appelle(['admin'])
-    input('input')
-    client.stop_appel()
+    print(client.get_contact())
     client.deconnect_tcp()
 
 
