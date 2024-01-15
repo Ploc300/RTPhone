@@ -51,6 +51,7 @@ class Connection_tcp(Tk):
     def connection(self)->None:
         try:
             self.__connection = Client_tcp(self.__entree_ip_serveur.get(),int(self.__entree_port_serveur.get()))
+            self.__connection.connect_tcp()
             self.__link = True
             self.close()
         except Exception as ex:
@@ -116,17 +117,25 @@ class Authentification_tcp(Tk):
     def auth(self)->None:
         if "@" in self.__entree_nom.get():
             try:
-                self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
-                self.__log = True
-                self.close()
+                auth = self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
+                if auth:
+                    self.__log = True
+                    self.close()
+                else:
+                    self.__label_erreur.config(text=f"erreur d'authentification")
+                    self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
             except Exception as ex:
                 self.__label_erreur.config(text=f"erreur d'authentification : {ex}")
                 self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
         else:
             try:
-                #self.__socket.auth(self.__entree_mdp.get(),self.__entree_nom.get())
-                self.__log = True
-                self.close()
+                auth = self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
+                if auth:
+                    self.__log = True
+                    self.close()
+                else:
+                    self.__label_erreur.config(text=f"erreur d'authentification")
+                    self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
             except Exception as ex:
                 self.__label_erreur.config(text=f"erreur d'authentification : {ex}")
                 self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")

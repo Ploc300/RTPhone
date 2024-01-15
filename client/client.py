@@ -3,7 +3,7 @@ import socket
 import sys
 import json
 import appel_udp
-import reseption_appel
+import reception_appel
 
 # ========== Class ==========
 
@@ -27,7 +27,7 @@ class Client_tcp:
     def deconnect_tcp(self)->None:
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
-        self.__reseption_appel.stop()
+        self.__reception_appel.stop()
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
@@ -44,7 +44,8 @@ class Client_tcp:
             print("le serveur nous boycotte, quel connard :", ex)
 
     
-    def auth(self, mdp, nom: str = '', mail: str = '')->None:
+    def auth(self, mdp, nom: str = '', mail: str = '')->bool:
+        authentifier: bool = False
         if nom != '':
             data: dict = {'username': nom, 'password': mdp}
             self.envoie(f'01 {json.dumps(data)}')
@@ -56,10 +57,12 @@ class Client_tcp:
         data = buffer[3:]
         if code == '03':
             self.__token = json.loads(data)['token']
-            self.__reseption_appel = reseption_appel.reception(self.ip_serveur, 5003).start()
+            self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
             self.__my_name = nom
+            authentifier = True
         else:
             raise Exception(data)
+        return authentifier
     
     def get_phone(self, username: str)->str:
         data: dict = {'token': self.__token, 'username': username}
