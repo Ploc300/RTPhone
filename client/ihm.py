@@ -52,6 +52,8 @@ class Connection_tcp(Tk):
         try:
             self.__connection = Client_tcp(self.__entree_ip_serveur.get(),int(self.__entree_port_serveur.get()))
             self.__connection.connect_tcp()
+            if self.__connection.get_erreur_con() != None:
+                raise Exception(self.__connection.get_erreur_con())
             self.__link = True
             self.close()
         except Exception as ex:
@@ -117,7 +119,10 @@ class Authentification_tcp(Tk):
     def auth(self)->None:
         if "@" in self.__entree_nom.get():
             try:
-                auth = self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
+                self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
+                if self.__socket.get_err_auth() != None:
+                    raise Exception(self.__socket.get_err_auth())
+                auth = self.__socket.get_auth()
                 if auth:
                     self.__log = True
                     self.close()
