@@ -1,8 +1,9 @@
 # ========== Import ==========
 import socket
-from threading import Thread
 import sys
 import json
+import appel_udp
+import reseption_appel
 
 # ========== Class ==========
 
@@ -12,6 +13,7 @@ class Client_tcp:
         self.port_serveur = port_serveur
         self.socket_client = None
         self.__token: str = None
+        self.__my_name: str = None
 
     def connect_tcp(self)->None:
         try:
@@ -25,6 +27,7 @@ class Client_tcp:
     def deconnect_tcp(self)->None:
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
+        self.__reseption_appel.stop()
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
@@ -53,10 +56,12 @@ class Client_tcp:
         data = buffer[3:]
         if code == '03':
             self.__token = json.loads(data)['token']
+            self.__reseption_appel = reseption_appel.reception(self.ip_serveur, 5003).start()
+            self.__my_name = nom
         else:
             raise Exception(data)
     
-    def get_phone(self, username: str)->None:
+    def get_phone(self, username: str)->str:
         data: dict = {'token': self.__token, 'username': username}
         self.envoie(f'02 {json.dumps(data)}')
         phone = self.receive()
@@ -71,21 +76,29 @@ class Client_tcp:
         self.send('04')
         mail = self.receive()
         return mail
-    
-    def get_nom(self)->None:
-        self.send('05')
-        nom = self.receive()
-        return nom
 
     def add_contact(self)->None:
         self.send('11')
         contacts = self.receive()
         return contacts
 
-    def get_contact(self)->None:
-        self.send('12')
-        contacts = self.receive()
-        return contacts
+    def get_contact(self)->list:
+        data: dict = {'token': self.__token, 'username': self.__my_name}
+        self.envoie(f'12 {json.dumps(data)}')
+        contacte = self.receive()
+        return contacte
+    
+    def appelle(self, usernames: list)->list:
+        data: dict = {'token': self.__token, 'users': usernames}
+        try:
+            self.envoie(f'11 {json.dumps(data)}')
+            self.Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
+            self.Client_udp.start()
+        except Exception as ex:
+            print(ex)
+    
+    def stop_appel(self)->None:
+        self.Client_udp.racroche()
 
 
 
@@ -93,12 +106,13 @@ class Client_tcp:
 # ========== Main ==========
 def main():
     # declaration des variables
-    ip_serveur: str = '127.0.0.1'
+    ip_serveur: str = '172.20.10.3'
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
     client.connect_tcp()
     client.auth('test', 'test')
+    print(client.get_contact())
     client.deconnect_tcp()
 
 
