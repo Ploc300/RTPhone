@@ -1,9 +1,6 @@
 ## ========== Import ==========
-import socket
+import socket, sys, json, appel_udp
 from threading import Thread
-import sys
-import json
-import appel_udp
 
 # ========== Class ==========
 
