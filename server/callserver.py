@@ -3,6 +3,7 @@ from debug import debug, debug_verbose
 from json import loads, dumps
 from threading import Thread
 import socket, time, pyaudio
+from db import Database
 
 # ========== Constant ==========
 
@@ -164,10 +165,21 @@ class CallRequest:
             :return: None
         """
         self.__users: set = users
+        self.__users_ip: set = set()
+        self.retrieve_users_ip()
         self.__source: str = source
         self.__port: int = 5003
         self.__socket: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__socket.bind(('', self.__port))
+
+    def retrieve_users_ip(self) -> None:
+        db = Database('Retrieve users ip')
+        for user in self.__users:
+            ip = db.retrieve_user_ip(user)
+            if not ip is None and ip != self.__source:
+                self.__users_ip.add(db.retrieve_user_ip(user))
+        debug(INFO.format(info=f'callserver.py: Users ip successfully retrieved'))
+        debug_verbose(f'callserver.py: {self.__users_ip}')
 
     def send(self, msg: str, dest: str) -> None:
         """
