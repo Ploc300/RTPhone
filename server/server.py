@@ -6,7 +6,7 @@ from debug import debug, debug_verbose
 from db import Database
 from json import loads, dumps
 import token_handler # the file automatically run the function to delete outdated token
-from callserver import CallServer
+from callserver import CallServer, CallRequest
 
 
 # ========== Constant ==========
@@ -76,7 +76,7 @@ class ListeningService:
 
             :return: le socket d'échange avec le client
         """
-        debug(INFO.format(info=f'server.py: Waiting for client'))
+        # debug(INFO.format(info=f'server.py: Waiting for client'))
         if self.__running and not KILL_ALL_THREAD:
             try:  # Attente des clients
                 try:
@@ -155,7 +155,7 @@ class ClientHandler(Thread):
             debug(ERROR.format(error=f'server.py: Failed to send message'))
             debug_verbose(f'server.py: {e}')
 
-    def recevoir(self) -> str:
+    def receive(self) -> str:
         """
             Recoit un message du client
 
@@ -184,7 +184,7 @@ class ClientHandler(Thread):
         buffer: str
         code: str = '99'
         while code != '00' and not KILL_ALL_THREAD:  # Tant que le client n'a pas envoyé le code de fin
-            buffer: str = self.recevoir()
+            buffer: str = self.receive()
             try:
                 # Récupération du code et du message
                 code, message = buffer[0:2], buffer[3:]
@@ -281,15 +281,12 @@ class ClientHandler(Thread):
                         if token_validity:
                             debug(INFO.format(
                                 info=f'server.py: Client token is valid'))
-                            user_set: set = set()
+                            users_set: set = set()
                             for user in message['users']:
-                                user_set.add(user)
-                            """
-                                Need to send a call request to the other client
-                            """
-                            for user in user_set:
-                                pass
-                            CallServer(user_set).start()
+                                users_set.add(user)
+                            debug_verbose(f'server.py: Users to call: {users_set} , {self.__socket_echange.getpeername()[0]}')
+                            users_ok: set = CallRequest(users_set, self.__socket_echange.getpeername()[0]).requests()
+                            CallServer(users_ok).start()
 
                         else:
                             data = {'message': 'Token is invalid'}

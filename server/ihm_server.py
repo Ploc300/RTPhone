@@ -249,7 +249,7 @@ def start_server(host, port, max_client):
             socket = host._Ihm__listening_service.wait()
             
             if not socket is None:
-                host._Ihm__client_handler = ClientHandler()
+                host._Ihm__client_handler = ClientHandler(socket)
 
                 host._Ihm__client_handler.start()
 
