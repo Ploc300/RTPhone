@@ -60,8 +60,10 @@ class Client_tcp:
             self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
             self.__my_name = nom
             authentifier = True
+        elif code == '04':
+            authentifier = False
         else:
-            raise Exception(data)
+            print('Code error in auth func')
         return authentifier
     
     def get_phone(self, username: str)->str:
