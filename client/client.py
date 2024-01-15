@@ -44,8 +44,7 @@ class Client_tcp:
             print("le serveur nous boycotte, quel connard :", ex)
 
     
-    def auth(self, mdp, nom: str = '', mail: str = '')->bool:
-        authentifier: bool = False
+    def auth(self, mdp, nom: str = '', mail: str = '')->None:
         if nom != '':
             data: dict = {'username': nom, 'password': mdp}
             self.envoie(f'01 {json.dumps(data)}')
@@ -59,10 +58,8 @@ class Client_tcp:
             self.__token = json.loads(data)['token']
             self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
             self.__my_name = nom
-            authentifier = True
         else:
             raise Exception(data)
-        return authentifier
     
     def get_phone(self, username: str)->str:
         data: dict = {'token': self.__token, 'username': username}
