@@ -26,7 +26,6 @@ class Client_tcp:
             self.socket_client.connect((self.ip_serveur, self.port_serveur))
         except Exception as ex:
             self.__erreur_con = f"le serveur est inateniable : {ex}"
-            sys.exit(1)
 
     def deconnect_tcp(self)->None:
         data: dict = {}

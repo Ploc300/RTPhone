@@ -52,13 +52,16 @@ class Connection_tcp(Tk):
         try:
             self.__connection = Client_tcp(self.__entree_ip_serveur.get(),int(self.__entree_port_serveur.get()))
             self.__connection.connect_tcp()
-            if self.__connection.get_erreur_con() != None:
-                raise Exception(self.__connection.get_erreur_con())
+            if self.__connection.get_err_con() != None:
+                raise Exception(self.__connection.get_err_con())
             self.__link = True
+            print("shit")
             self.close()
         except Exception as ex:
+            print(ex)
             self.__label_erreur.config(text=f"erreur de connection : {ex}")
             self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
+            
 
     def close(self)->None:
         self.destroy()
@@ -127,8 +130,7 @@ class Authentification_tcp(Tk):
                     self.__log = True
                     self.close()
                 else:
-                    self.__label_erreur.config(text=f"erreur d'authentification")
-                    self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
+                    raise Exception("nom ou mot de passe incorrect")
             except Exception as ex:
                 self.__label_erreur.config(text=f"erreur d'authentification : {ex}")
                 self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
@@ -211,8 +213,8 @@ class Ihm(Tk):
         self.destroy()
     
     def profil(self)->None:
-        self.__profil = profil(self)
-        self.__profil.mainloop()
+        #self.__profil = profil(self)
+        #self.__profil.mainloop()
         pass
     
     def appel(self)->None:
