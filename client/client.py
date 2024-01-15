@@ -85,8 +85,8 @@ class Client_tcp:
     def get_contact(self)->None:
         data: dict = {'token': self.__token, 'username': self.__my_name}
         self.envoie(f'12 {json.dumps(data)}')
-        contacts = self.receive()
-        return contacts
+        contacte = self.receive()
+        return contacte
 
 
 
