@@ -1,6 +1,6 @@
 from threading import Thread
 from client import Client_tcp
-from reception_appel import reception_appel
+from reception_appel import reception
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import Tk,PhotoImage, Toplevel
@@ -439,7 +439,7 @@ class appel_entrant():
 
 # ========== fonction ==========
 def appel_entrant()->None:
-    socket : reception_appel = reception_appel()
+    socket : reception = reception()
     while socket.get_appel() == False:
         print("wait")
         socket.recevoir()
