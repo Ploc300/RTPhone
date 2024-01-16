@@ -4,7 +4,7 @@ from threading import Thread
 
 # ========== Class ==========
 
-class reception(Thread):
+class reception():
         def __init__(self, ip_serveur: str, port_serveur: int) -> None:
             super().__init__()
             self.__ip_serveur = ip_serveur
@@ -15,7 +15,7 @@ class reception(Thread):
             self.__appeller = False
             self.__accepter = False
         
-        def run(self):
+        def recevoir(self):
             self.__socket_echange.bind(('', self.__port_client))
             while self.__connexion:
                 data, addr = self.__socket_echange.recvfrom(512)
@@ -42,6 +42,9 @@ class reception(Thread):
         def stop_appel(self)->None:
             self.__appell.racroche()
             self.__appell = None
+        
+        def get_who_call(self)->str:
+            return self.__appell.get_who_call()
         
         def stop(self)->None:
             self.__connexion = False
