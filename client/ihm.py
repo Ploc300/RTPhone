@@ -433,9 +433,10 @@ class appel_entrant():
         self.__socket.accept_appel()
         appel_en_cour(self).mainloop()
 
-    def close(self)->None:
-        self.racroche()
+    def refu(self)->None:
         self.destroy()
+        self.__socket.refuse_appel()
+
 
 # ========== fonction ==========
 def appel_entrant()->None:
