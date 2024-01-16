@@ -199,7 +199,7 @@ class Ihm(Tk):
         self.__param1.grid(row=1,column=0,sticky="nswe")
         self.__param2 = ttk.Button(self.__main,text="contact",style="danger.TButton")
         self.__param2.grid(row=3,column=0,sticky="nswe")
-        self.__param3 = ttk.Button(self.__main,text="option",style="danger.TButton")
+        self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton")
         self.__param3.grid(row=4,column=0,sticky="nswe")
         
     
@@ -221,13 +221,12 @@ class Ihm(Tk):
         self.__appel = appel(self)
         self.__appel.mainloop()
     
-    def option():
+    def logout():
         pass
 
 class profil(Toplevel):
     def __init__(self,socket) -> None:
         super().__init__()
-        self.__socket = socket
         self.__log : bool = False
         self.__quit : bool = False
         #setting title
@@ -266,6 +265,7 @@ class appel(Toplevel):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
         self.__parent = parent
+        self.__socket = parent.get_sockert()
         self.__list_2_call = []
         self.title(self.__title)
         #setting w indow size
@@ -288,18 +288,39 @@ class appel(Toplevel):
         self.__titre = ttk.Label(self.__navbar,text="appel",style="danger.TLabel",font=("Courier", 100))
         self.__titre.grid(row=0,column=1,sticky="nswe")
         ##main##
+        self.__sous_titre = ttk.Label(self.__main,text="profil",style="danger.TLabel",font=("Courier", 100))
+        self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
+        self.__label_nom = ttk.Label(self.__main,text="qui vouler vous appeler ? :",style="danger.TLabel")
+        self.__label_nom.grid(row=1,column=0,sticky="nswe")
+        self.__entree_nom = ttk.Entry(self.__main)
+        self.__entree_nom.grid(row=1,column=1,sticky="nswe")
+        self.__btn_ajouter = ttk.Button(self.__main,text="ajouter",style="danger.TButton",command=self.set_who_call(self.__entree_nom.get()))
+        self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
+        self.__btn_appel = ttk.Button(self.__main,text="appeler",style="danger.TButton",command=self.call)
+        self.__btn_appel.grid(row=2,column=2,sticky="nswe")
+        self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        
         
         def set_who_call(self,name)->None:
-            self.__list_2_call.append(name)
+            if name not in self.__list_2_call and name != self.__socket.get_my_name():
+                self.__list_2_call.append(name)
+            else:
+                self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi wesh O_O")
+                self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
         
-        def get_who_call(self,name)->list:
-            return self.__list_2_call.append(name)
+        def get_who_call(self)->list:
+            return self.__list_2_call
             
         def call(self)->None:
             try:
-                self.__parent.appelle(self.__list_2_call)
+                self.__socket.appelle(self.__list_2_call)
+                appel_en_cour(self).mainloop()
             except Exception as ex:
-                print(ex)
+                self.__label_erreur.config(text=f"erreur : {ex}")
+                self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
+                
+        def racroche(self)->None:
+            self.__socket.stop_appel()
 
 class appel_en_cour(Toplevel):
     def __init__(self, parent):
@@ -315,6 +336,25 @@ class appel_en_cour(Toplevel):
         self.alignstr = '%dx%d+%d+%d' % (self.__width, self.__height, (self.__screenwidth - self.__width) / 2, (self.__screenheight - self.__height) / 2)
         self.geometry(self.alignstr)
         ##frames##
+        self.__frams_name = ttk.Frame(self,padding=15,bootstyle="danger.TLabel")
+        self.__frams_name.pack(side=TOP,fill=BOTH,ipady=10)
+        self.__frams_btn = ttk.Frame(self,padding=5,style="info.TFrame")
+        self.__frams_btn.pack(side=TOP,expand=True,fill=BOTH)
+        ##frames_name##
+        self.__nb_name = len(self.__parent.get_who_call())
+        self.__list_name = self.__parent.get_who_call()
+        for i in range(0,self.__nb_name,2):
+            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i],style="danger.TLabel")
+            self.__label_name.grid(row=i,column=0,sticky="nswe")
+            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i+1],style="danger.TLabel")
+            self.__label_name.grid(row=i,column=1,sticky="nswe")
+        ##frames_btn##
+        self.__btn_racrocher = ttk.Button(self.__frams_btn,text="racrocher",style="danger.TButton",command=self.close)
+        
+    def close(self)->None:
+        self.__parent.racroche()
+        self.destroy()
+
 
 # ========== fonction ==========
 
