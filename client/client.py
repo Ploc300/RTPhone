@@ -31,7 +31,6 @@ class Client_tcp:
     def deconnect_tcp(self)->None:
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
-        self.__reception_appel.stop()
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:

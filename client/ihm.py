@@ -65,7 +65,6 @@ class Connection_tcp(Tk):
             
     def close(self)->None:
         self.destroy()
-        os._exit(0)
     
     def get_connection(self)->Client_tcp:
         return self.__link
@@ -223,8 +222,12 @@ class Ihm(Tk):
         self.__contact.mainloop()
     
     def logout(self):
+        self.__socket.deconnect_tcp()
         self.destroy()
         main()
+    
+    def get_sockert(self)->Client_tcp:
+        return self.__socket
 
 class profil(Toplevel):
     def __init__(self,socket) -> None:
@@ -464,7 +467,7 @@ def main():
     if quitt == True:
         main()
     else:
-        ihm : Ihm = Ihm()
+        ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
             
