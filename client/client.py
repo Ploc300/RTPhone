@@ -52,9 +52,11 @@ class Client_tcp:
             if nom != '':
                 data: dict = {'username': nom, 'password': mdp}
                 self.envoie(f'01 {json.dumps(data)}')
+                self.__my_name = nom
             else:
                 data: dict = {'username': mail, 'password': mdp}
                 self.envoie(f'01 {json.dumps(data)}')
+                self.__my_name = mail
             buffer = self.receive()
             code = buffer[:2]
             data = buffer[3:]
@@ -115,6 +117,14 @@ class Client_tcp:
     
     def stop_appel(self)->None:
         self.__Client_udp.racroche()
+    
+    def get_my_name(self)->str:
+        retour: str = None
+        if "@" in self.__my_name:
+            retour = f"mail : {self.__my_name}"
+        else:
+            retour = f"nom : {self.__my_name}"
+        return retour
 
 
 
