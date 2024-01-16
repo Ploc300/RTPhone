@@ -11,6 +11,7 @@ class Client_tcp:
     def __init__(self, ip_serveur: str, port_serveur: int)->None:
         self.ip_serveur = ip_serveur
         self.port_serveur = port_serveur
+        self.__Client_udp = None
         self.socket_client = None
         self.__token: str = None
         self.__my_name: str = None
@@ -26,12 +27,10 @@ class Client_tcp:
             self.socket_client.connect((self.ip_serveur, self.port_serveur))
         except Exception as ex:
             self.__erreur_con = f"le serveur est inateniable : {ex}"
-            sys.exit(1)
 
     def deconnect_tcp(self)->None:
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
-        self.__reception_appel.stop()
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
@@ -61,7 +60,7 @@ class Client_tcp:
             data = buffer[3:]
             if code == '03':
                 self.__token = json.loads(data)['token']
-                self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
+                #self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
                 self.__my_name = nom
                 self.__authentifier = True
             elif code == '04':
@@ -109,13 +108,13 @@ class Client_tcp:
         data: dict = {'token': self.__token, 'users': usernames}
         try:
             self.envoie(f'11 {json.dumps(data)}')
-            self.Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
-            self.Client_udp.start()
+            self.__Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
+            self.__Client_udp.start()
         except Exception as ex:
             print(ex)
     
     def stop_appel(self)->None:
-        self.Client_udp.racroche()
+        self.__Client_udp.racroche()
 
 
 

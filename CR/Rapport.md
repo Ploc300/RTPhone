@@ -12,14 +12,14 @@ Serveur | |
 Appel avec plusieurs personnes | Oui |
 Connexion sécurisée avec des tokens | Oui |
 Gestion des utilisateurs | Oui |
-Changement de numéro de téléphone sans conflit | ? |
+Changement de numéro de téléphone sans conflit | Non |
 Interémédiare des appels | Oui |
 IHM | Oui |
 Softphone | |
 Connexion au serveur | Oui |
 Gestion des contacts | ? |
 Fonctions d'appel de base | ? |
-IHM | ? |
+IHM | Oui |
 Envoi de messages | Non |
 Envoi de fichiers | Non |
 Envoi de messages vocaux | Non |
