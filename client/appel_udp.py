@@ -38,7 +38,6 @@ class Client_udp(Thread):
                 self.__appel = True
                 while self.__appel:
                         data = self.__stream_emeteur.read(self.__NB_ECHANTILLONS*2)
-                        print(data)
                         # envoi du donnees
                         try:
                                 self.__socket_echange.sendto(data,(self.__ip_serveur, self.__port_serveur))
