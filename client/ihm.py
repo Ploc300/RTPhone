@@ -355,7 +355,41 @@ class appel_en_cour(Toplevel):
         self.__parent.racroche()
         self.destroy()
 
-
+class contacct(Toplevel):
+    def __init__(self,socket) -> None:
+        super().__init__()
+        self.__log : bool = False
+        self.__quit : bool = False
+        #setting title
+        self.title("RTPhone/login")
+        #setting w indow size
+        self.__screenwidth = self.winfo_screenwidth()
+        self.__screenheight = self.winfo_screenheight()
+        self.__width=self.__screenwidth*2/3
+        self.__height=self.__screenheight*2/3
+        self.alignstr = '%dx%d+%d+%d' % (self.__width, self.__height, (self.__screenwidth - self.__width) / 2, (self.__screenheight - self.__height) / 2)
+        self.geometry(self.alignstr)
+        ##frames##
+        self.__navbar = ttk.Frame(self,padding=10,bootstyle="danger.TLabel")
+        self.__navbar.pack(side=TOP,fill=BOTH,ipady=10)
+        self.__main = ttk.Frame(self,padding=10,style="info.TFrame")
+        self.__main.pack(side=TOP,expand=True,fill=BOTH)
+        ##navbar##
+        self.__img = PhotoImage(file="logo/RTPhone_logo.png")
+        self.__img = self.__img.subsample(5) #mechanically, here it is adjusted to 32 instead of 320
+        self.__rt_phone = ttk.Label(self.__navbar,image=self.__img)
+        self.__rt_phone.grid(row=0,column=0,sticky="nswe")
+        self.__titre = ttk.Label(self.__navbar,text="RTPhone",style="danger.TLabel",font=("Courier", 140))
+        self.__titre.grid(row=0,column=1,sticky="nswe")
+        ##main##
+        self.__sous_titre = ttk.Label(self.__main,text="profil",style="danger.TLabel",font=("Courier", 100))
+        self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
+        self.__label_nom = ttk.Label(self.__main,text=f"contact : {self.get_contact()} ",style="danger.TLabel")
+        self.__label_nom.grid(row=1,column=0,sticky="nswe")
+        
+    def get_contact(self)->list:
+        return self.__socket.get_contact()
+    
 # ========== fonction ==========
 
 def main():
