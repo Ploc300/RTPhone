@@ -439,9 +439,10 @@ class appel_entrant():
 
 # ========== fonction ==========
 def appel_entrant()->None:
-    socket : reception_appel = reception_appel().start()
+    socket : reception_appel = reception_appel()
     while socket.get_appel() == False:
         print("wait")
+        socket.recevoir()
     who : list = socket.get_who_call()
     appel_entrant(who,socket).mainloop()
 
