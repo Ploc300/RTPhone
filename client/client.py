@@ -60,7 +60,7 @@ class Client_tcp:
             data = buffer[3:]
             if code == '03':
                 self.__token = json.loads(data)['token']
-                self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
+                #self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
                 self.__my_name = nom
                 self.__authentifier = True
             elif code == '04':

@@ -10,6 +10,7 @@ class Connection_tcp(Tk):
     def __init__(self) -> None:
         super().__init__()
         self.__link : bool = False
+        self.__connection : Client_tcp = None
         #setting title
         self.title("RTPhone/connection")
         #setting w indow size
@@ -44,7 +45,7 @@ class Connection_tcp(Tk):
         self.__entree_port_serveur.grid(row=2,column=1,sticky="nswe")
         self.__btn_connexion = ttk.Button(self.__main,text="connexion",style="danger.TButton",command=self.connection)
         self.__btn_connexion.grid(row=2,column=2,sticky="nswe")
-        self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton")
+        self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
 
@@ -55,24 +56,20 @@ class Connection_tcp(Tk):
             if self.__connection.get_err_con() != None:
                 raise Exception(self.__connection.get_err_con())
             self.__link = True
-            print("shit")
             self.close()
         except Exception as ex:
             print(ex)
             self.__label_erreur.config(text=f"erreur de connection : {ex}")
             self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
             
-
     def close(self)->None:
         self.destroy()
-
-    def deconnection(self)->None:
-        self.__connection.deconnect_tcp()
-        self.__link = False
     
     def get_connection(self)->Client_tcp:
         return self.__link
 
+    def get_sockert(self)->Client_tcp:
+        return self.__connection
 ##authentification tcp##
 class Authentification_tcp(Tk):
     def __init__(self,socket) -> None:
@@ -141,8 +138,7 @@ class Authentification_tcp(Tk):
                     self.__log = True
                     self.close()
                 else:
-                    self.__label_erreur.config(text=f"erreur d'authentification")
-                    self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
+                    raise Exception("nom ou mot de passe incorrect")
             except Exception as ex:
                 self.__label_erreur.config(text=f"erreur d'authentification : {ex}")
                 self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
@@ -285,19 +281,18 @@ class appel_en_cour(Toplevel):
 def main():
     connect : Connection_tcp = Connection_tcp()
     connect.mainloop()
+    socket_tcp : Client_tcp = connect.get_sockert()
     connection : bool = connect.get_connection()
     while connection == False:
         connection = connect.get_connection()
-    login : Authentification_tcp = Authentification_tcp(connection)
+    login : Authentification_tcp = Authentification_tcp(socket_tcp)
     login.mainloop()
     auth : bool = login.get_auth()
-    quit : bool = login.get_quit()
-    while auth == False and quit == False:
+    quitt : bool = login.get_quit()
+    while auth == False and quitt == False:
         auth = login.get_auth()
-        quit = login.get_quit()
-        print("chipi chipi")
-        print("chappa chappa")
-    if quit == True:
+        quitt = login.get_quit()
+    if quitt == True:
         main()
     else:
         ihm : Ihm = Ihm()
