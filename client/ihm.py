@@ -3,7 +3,7 @@ from client import Client_tcp
 from reception_appel import reception
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from tkinter import Tk,PhotoImage, Toplevel
+from tkinter import Tk,PhotoImage, Toplevel, Button
 import os
 # ========== Class ==========
 ##connection tcp##
@@ -299,33 +299,33 @@ class appel(Toplevel):
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
         self.__entree_nom = ttk.Entry(self.__main)
         self.__entree_nom.grid(row=1,column=1,sticky="nswe")
-        self.__btn_ajouter = ttk.Button(self.__main,text="ajouter",style="danger.TButton",command=self.set_who_call(self.__entree_nom.get()))
+        self.__btn_ajouter = Button(self.__main,text="ajouter",command=self.set_who_call(self.__entree_nom.get()))
         self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
-        self.__btn_appel = ttk.Button(self.__main,text="appeler",style="danger.TButton",command=self.call)
+        self.__btn_appel = Button(self.__main,text="appeler",command=self.call)
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
         
         
-        def set_who_call(self,name)->None:
-            if name not in self.__list_2_call and name != self.__socket.get_my_name():
-                self.__list_2_call.append(name)
-            else:
-                self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi wesh O_O")
-                self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
+    def set_who_call(self,name)->None:
+        if name not in self.__list_2_call and name != self.__socket.get_my_name():
+            self.__list_2_call.append(name)
+        else:
+            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi wesh O_O")
+            self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
+    
+    def get_who_call(self)->list:
+        return self.__list_2_call
         
-        def get_who_call(self)->list:
-            return self.__list_2_call
+    def call(self)->None:
+        try:
+            self.__socket.appelle(self.__list_2_call)
+            appel_en_cour(self).mainloop()
+        except Exception as ex:
+            self.__label_erreur.config(text=f"erreur : {ex}")
+            self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
             
-        def call(self)->None:
-            try:
-                self.__socket.appelle(self.__list_2_call)
-                appel_en_cour(self).mainloop()
-            except Exception as ex:
-                self.__label_erreur.config(text=f"erreur : {ex}")
-                self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
-                
-        def racroche(self)->None:
-            self.__socket.stop_appel()
+    def racroche(self)->None:
+        self.__socket.stop_appel()
 
 class appel_en_cour(Toplevel):
     def __init__(self, parent):
