@@ -11,6 +11,7 @@ class Client_tcp:
     def __init__(self, ip_serveur: str, port_serveur: int)->None:
         self.ip_serveur = ip_serveur
         self.port_serveur = port_serveur
+        self.__Client_udp = None
         self.socket_client = None
         self.__token: str = None
         self.__my_name: str = None
@@ -108,13 +109,13 @@ class Client_tcp:
         data: dict = {'token': self.__token, 'users': usernames}
         try:
             self.envoie(f'11 {json.dumps(data)}')
-            self.Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
-            self.Client_udp.start()
+            self.__Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
+            self.__Client_udp.start()
         except Exception as ex:
             print(ex)
     
     def stop_appel(self)->None:
-        self.Client_udp.racroche()
+        self.__Client_udp.racroche()
 
 
 

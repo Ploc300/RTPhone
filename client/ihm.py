@@ -1,9 +1,10 @@
 from threading import Thread
-from appel_udp import Client_udp
 from client import Client_tcp
+from reception_appel import reception_appel
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import Tk,PhotoImage, Toplevel
+import os
 # ========== Class ==========
 ##connection tcp##
 class Connection_tcp(Tk):
@@ -64,6 +65,7 @@ class Connection_tcp(Tk):
             
     def close(self)->None:
         self.destroy()
+        os._exit(0)
     
     def get_connection(self)->Client_tcp:
         return self.__link
@@ -201,28 +203,28 @@ class Ihm(Tk):
         self.__param2.grid(row=3,column=0,sticky="nswe")
         self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton")
         self.__param3.grid(row=4,column=0,sticky="nswe")
-        
-    
-    def connection(self)->None:
-        pass
-    
-    def auth(self)->None:
-        pass
+        self.__param4 = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
+        self.__param4.grid(row=5,column=0,sticky="nswe")
     
     def close(self)->None:
         self.destroy()
     
     def profil(self)->None:
-        #self.__profil = profil(self)
-        #self.__profil.mainloop()
-        pass
+        self.__profil = profil(self)
+        self.__profil.mainloop()
+        
     
     def appel(self)->None:
         self.__appel = appel(self)
         self.__appel.mainloop()
     
-    def logout():
-        pass
+    def contact(self)->None:
+        self.__contact = contact(self)
+        self.__contact.mainloop()
+    
+    def logout(self):
+        self.destroy()
+        main()
 
 class profil(Toplevel):
     def __init__(self,socket) -> None:
@@ -350,12 +352,13 @@ class appel_en_cour(Toplevel):
             self.__label_name.grid(row=i,column=1,sticky="nswe")
         ##frames_btn##
         self.__btn_racrocher = ttk.Button(self.__frams_btn,text="racrocher",style="danger.TButton",command=self.close)
+        self.__btn_racrocher.grid(row=0,column=0,sticky="nswe")
         
     def close(self)->None:
         self.__parent.racroche()
         self.destroy()
 
-class contacct(Toplevel):
+class contact(Toplevel):
     def __init__(self,socket) -> None:
         super().__init__()
         self.__log : bool = False
@@ -389,8 +392,58 @@ class contacct(Toplevel):
         
     def get_contact(self)->list:
         return self.__socket.get_contact()
-    
+
+class appel_entrant():
+    def __init__(self, who,socket):
+        super().__init__()
+        self.__socket = socket
+        self.__who_call : list = who
+        self.__title = f'{self.master.title()}: {self.__class__.__name__}'
+        self.title(self.__title)
+        #setting w indow size
+        self.__screenwidth = self.winfo_screenwidth()
+        self.__screenheight = self.winfo_screenheight()
+        self.__width=self.__screenwidth*1/4
+        self.__height=self.__screenheight*1/5
+        self.alignstr = '%dx%d+%d+%d' % (self.__width, self.__height, (self.__screenwidth - self.__width) / 2, (self.__screenheight - self.__height) / 2)
+        self.geometry(self.alignstr)
+        self.attributes('-topmost', True)
+        ##frames##
+        self.__frams_name = ttk.Frame(self,padding=15,bootstyle="danger.TLabel")
+        self.__frams_name.pack(side=TOP,fill=BOTH,ipady=10)
+        self.__frams_btn = ttk.Frame(self,padding=5,style="info.TFrame")
+        self.__frams_btn.pack(side=TOP,expand=True,fill=BOTH)
+        ##frames_name##
+        self.__nb_name = len(self.__who_call)
+        self.__list_name = self.__who_call
+        for i in range(0,self.__nb_name,2):
+            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i],style="danger.TLabel")
+            self.__label_name.grid(row=i,column=0,sticky="nswe")
+            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i+1],style="danger.TLabel")
+            self.__label_name.grid(row=i,column=1,sticky="nswe")
+        ##frames_btn##
+        self.__btn_accepter = ttk.Button(self.__frams_btn,text="accepter",style="danger.TButton",command=self.accept)
+        self.__btn_accepter.grid(row=0,column=0,sticky="nswe")
+        self.__btn_racrocher = ttk.Button(self.__frams_btn,text="racrocher",style="danger.TButton",command=self.close)
+        self.__btn_racrocher.grid(row=0,column=3,sticky="nswe")
+
+
+    def accept(self)->None:
+        self.destroy()
+        self.__socket.accept_appel()
+        appel_en_cour(self).mainloop()
+
+    def close(self)->None:
+        self.racroche()
+        self.destroy()
+
 # ========== fonction ==========
+def appel_entrant()->None:
+    socket : reception_appel = reception_appel().start()
+    while socket.get_appel() == False:
+        print("wait")
+    who : list = socket.get_who_call()
+    appel_entrant(who,socket).mainloop()
 
 def main():
     connect : Connection_tcp = Connection_tcp()

@@ -10,6 +10,7 @@ class reception(Thread):
             self.__ip_serveur = ip_serveur
             self.__port_serveur = port_serveur
             self.__port_client = 5003
+            self.__appell : appel_udp = None
             self.__connexion = True
             self.__appeller = False
             self.__accepter = False
@@ -22,7 +23,7 @@ class reception(Thread):
                     if not self.__appeller:
                         if self.__accepter:
                             self.__socket_echange.sendto(b'15', (self.__ip_serveur, self.__port_serveur))
-                            appel_udp.Client_udp(self.__ip_serveur, self.__port_serveur, self.__port_client).start()
+                            self.__appell = appel_udp.Client_udp(self.__ip_serveur, self.__port_serveur, self.__port_client).start()
                             self.__appeller = True
                         else:
                             self.__socket_echange.sendto(b'16', (self.__ip_serveur, self.__port_serveur))
@@ -33,8 +34,14 @@ class reception(Thread):
             self.__accepter = True
         
         def refuse_appel(self)->None:
+            self.__appell.racroche()
+            self.__appell = None
             self.__accepter = False
             self.__appeller = False
+
+        def stop_appel(self)->None:
+            self.__appell.racroche()
+            self.__appell = None
         
         def stop(self)->None:
             self.__connexion = False
