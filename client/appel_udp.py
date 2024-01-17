@@ -48,8 +48,12 @@ class Client_udp(Thread):
                 self.__socket_echange.bind(('', 5002))
                 self.__appel = True
                 while self.__appel:
-                        data, addr = self.__socket_echange.recvfrom(4096*2)
-                        self.__stream_recepteur.write(data)
+                        try:
+                                data, _ = self.__socket_echange.recvfrom(4096*2)
+                        except ConnectionResetError:
+                                data = b''
+                        if data != b'':
+                                self.__stream_recepteur.write(data)
                 
         def run(self):
                 try:

@@ -81,7 +81,8 @@ class CallServer:
                 debug_verbose(f'callserver.py: {buffer}')
         else:
             debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
-        return buffer
+        if self.__communication_status:
+            self.receive()
 
     def init_sockets(self) -> None:
         """
