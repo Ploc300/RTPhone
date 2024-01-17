@@ -6,6 +6,7 @@ from json import loads
 # ========== Class ==========
 
 class reception():
+        """class qui permet de recevoir les appels entrant"""
         def __init__(self, ip_serveur: str, port_serveur: int) -> None:
             super().__init__()
             self.__ip_serveur = ip_serveur
@@ -35,22 +36,27 @@ class reception():
                         self.__socket_echange.sendto(b'16', (self.__ip_serveur, self.__port_serveur))
         
         def accepte_appel(self)->None:
+            """permet d'accepter un appel entrant"""
             self.__accepter = True
         
         def refuse_appel(self)->None:
+            """permet de refuser un appel entrant"""
             self.__appell.racroche()
             self.__appell = None
             self.__accepter = False
             self.__appeller = False
 
         def stop_appel(self)->None:
+            """permet de racrocher"""
             self.__appell.racroche()
             self.__appell = None
         
         def get_who_call(self)->str:
+            """permet de savoir qui appel"""
             return self.__who_call
         
         def stop(self)->None:
+            """permet d'arreter la reception"""
             self.__connexion = False
             self.__socket_echange.close()
             
