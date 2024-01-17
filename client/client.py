@@ -92,11 +92,19 @@ class Client_tcp:
         self.send('04')
         mail = self.receive()
         return mail
+    
+    def get_connected_clients(self):
+        data: dict = {'token': self.__token}
+        self.envoie(f'6 {json.dumps(data)}')
+        contacte = self.receive()
+        return contacte
+
 
     def add_contact(self)->None:
-        self.send('11')
-        contacts = self.receive()
-        return contacts
+        data: dict = {'token': self.__token, 'username': self.__my_name, 'contact': 'test'}
+        self.envoie(f'13 {json.dumps(data)}')
+        contacte = self.receive()
+        return contacte
 
     def get_contact(self)->list:
         data: dict = {'token': self.__token, 'username': self.__my_name}

@@ -17,14 +17,14 @@ Interémédiare des appels | Oui |
 IHM | Oui |
 Softphone | |
 Connexion au serveur | Oui |
-Gestion des contacts | ? |
+Gestion des contacts | Non |
 Fonctions d'appel de base | ? |
 IHM | Oui |
 Envoi de messages | Non |
 Envoi de fichiers | Non |
 Envoi de messages vocaux | Non |
 Conférence téléphonique | Oui |
-Gérer son status | ? |
+Gérer son status | Non |
 
 ### Diagramme de gannt
 
