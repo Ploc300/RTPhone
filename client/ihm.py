@@ -559,7 +559,7 @@ def main():
     if quitt == True:
         main()
     else:
-
+        Thread1 = Thread(target=appel_entrant).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
