@@ -16,7 +16,7 @@ class Client_tcp:
         self.__Client_udp = None
         self.socket_client = None
         self.__token: str = None
-        self.__my_name: str = "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+        self.__my_name: str = ""
         self.__erreur_con : str = None
         self.__erreur_auth : str = None
         self.__reception_appel : str = None
@@ -155,6 +155,7 @@ def main():
     client.deconnect_tcp()
 
 
-
+if __name__ == "__main__":
+    main()
 
 
