@@ -8,19 +8,22 @@ import reception_appel
 # ========== Class ==========
 
 class Client_tcp:
+    """class qui permet de gerer la connexion avec le serveur
+    """
     def __init__(self, ip_serveur: str, port_serveur: int)->None:
         self.ip_serveur = ip_serveur
         self.port_serveur = port_serveur
         self.__Client_udp = None
         self.socket_client = None
         self.__token: str = None
-        self.__my_name: str = "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+        self.__my_name: str = ""
         self.__erreur_con : str = None
         self.__erreur_auth : str = None
         self.__reception_appel : str = None
         self.__authentifier: bool = False
 
     def connect_tcp(self)->None:
+        """permet de se connecter au serveur"""
         try:
             self.socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket_client.settimeout(5)
@@ -29,14 +32,17 @@ class Client_tcp:
             self.__erreur_con = f"le serveur est inateniable : {ex}"
 
     def deconnect_tcp(self)->None:
+        """permet de se deconnecter du serveur"""
         data: dict = {}
         self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
         self.socket_client.close()
     
     def envoie(self, msg: str)-> None:
-            self.socket_client.send(msg.encode('utf-8'))
+        """permet d'envoyer un message au serveur"""
+        self.socket_client.send(msg.encode('utf-8'))
     
     def receive(self)-> str: 
+        """permet de recevoir un message du serveur"""
         try:
             msg = self.socket_client.recv(1024)
             if msg == None:
@@ -48,6 +54,7 @@ class Client_tcp:
 
     
     def auth(self, mdp, nom: str = '', mail: str = '')->None:
+        """permet de s'authentifier au serveur"""
         try:
             if nom != '':
                 data: dict = {'username': nom, 'password': mdp}
@@ -70,42 +77,46 @@ class Client_tcp:
             self.__erreur_auth = f"authentification erreur : {ex}"
     
     def get_phone(self, username: str)->str:
+        """permet de recuperer le numero de telephone d'un utilisateur
+        info : non implementer dans l'ihm
+        """
         data: dict = {'token': self.__token, 'username': username}
         self.envoie(f'02 {json.dumps(data)}')
         phone = self.receive()
         return phone
     
     def get_auth(self)->bool:
+        """permet de savoir si l'utilisateur est authentifier"""
         return self.__authentifier
     
     def get_err_con(self)->str:
+        """permet de recuperer l'erreur de connexion"""
         return self.__erreur_con
     
     def get_err_auth(self)->str:
+        """permet de recuperer l'erreur d'authentification"""
         return self.__erreur_auth
     
-    def change_phone(self)->None:
-        self.send('03')
-        phone = self.receive()
-        return phone
-
-    def get_mail(self)->None:
-        self.send('04')
-        mail = self.receive()
-        return mail
 
     def add_contact(self)->None:
+        """permet d'ajouter un contacte
+        info : non implementer dans l'ihm
+        """
         self.send('11')
         contacts = self.receive()
         return contacts
 
     def get_contact(self)->list:
+        """permet de recuperer les contacte de l'utilisateur
+        """
         data: dict = {'token': self.__token, 'username': self.__my_name}
         self.envoie(f'12 {json.dumps(data)}')
         contacte = self.receive()
         return contacte
     
     def appelle(self, usernames: list)->list:
+        """permet d'appeller un utilisateur
+        """
         data: dict = {'token': self.__token, 'users': usernames}
         try:
             self.envoie(f'11 {json.dumps(data)}')
@@ -115,9 +126,11 @@ class Client_tcp:
             print(ex)
     
     def stop_appel(self)->None:
+        """permet de racrocher"""
         self.__Client_udp.racroche()
     
     def get_my_name(self)->str:
+        """permet de recuperer le nom de l'utilisateur"""
         retour: str = None
         if "@" in self.__my_name:
             retour = f"mail : {self.__my_name}"
@@ -131,6 +144,7 @@ class Client_tcp:
 
 # ========== Main ==========
 def main():
+    """fonction de test"""
     # declaration des variables
     ip_serveur: str = '172.20.10.3'
     port_serveur: int = 5000
@@ -142,9 +156,7 @@ def main():
     client.deconnect_tcp()
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
 
 

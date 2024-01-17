@@ -8,6 +8,12 @@ import os
 # ========== Class ==========
 ##connection tcp##
 class Connection_tcp(Tk):
+    """connection tcp
+    gerer la connection tcp avec le serveur
+
+    Args:
+        Tk (Tk): fenetre tkinter de connection
+    """
     def __init__(self) -> None:
         super().__init__()
         self.__link : bool = False
@@ -51,6 +57,8 @@ class Connection_tcp(Tk):
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
 
     def connection(self)->None:
+        """connection au serveur : ouvre une connection tcp avec le serveur
+        """
         try:
             self.__connection = Client_tcp(self.__entree_ip_serveur.get(),int(self.__entree_port_serveur.get()))
             self.__connection.connect_tcp()
@@ -64,16 +72,33 @@ class Connection_tcp(Tk):
             self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
             
     def close(self)->None:
+        """ferme la fenetre et le programme
+        """
         self.destroy()
         os._exit(0)
     
-    def get_connection(self)->Client_tcp:
+    def get_connection(self)->bool:
+        """retourne la connection est vrai si la connection est etablie
+
+        Returns:
+            bool
+        """
         return self.__link
 
     def get_sockert(self)->Client_tcp:
+        """retourne le socket tcp
+
+        Returns:
+            Client_tcp: _description_
+        """
         return self.__connection
 ##authentification tcp##
 class Authentification_tcp(Tk):
+    """authentification tcp
+
+    Args:
+        Tk (): page ihm de athentification
+    """
     def __init__(self,socket) -> None:
         super().__init__()
         self.__socket = socket
@@ -119,6 +144,9 @@ class Authentification_tcp(Tk):
         
     
     def auth(self)->None:
+        """
+        verifie si la connection se fais par nom ou par mail puis authentification au serveur
+        """
         if "@" in self.__entree_nom.get():
             try:
                 self.__socket.auth(self.__entree_mdp.get(),mail=self.__entree_nom.get())
@@ -149,21 +177,34 @@ class Authentification_tcp(Tk):
                 self.__label_erreur.grid(row=4,column=0,columnspan=4,sticky="nswe")
 
     def __btn_quitter(self)->None:
-        self.__quit = True
-        self.__socket.deconnect_tcp()
+        """ferme la fenetre, deconnect le socket et relance le programme
+        """
+        self.__quit = True #permet de verifier si l'utilisateur a quitter la fenetre pour le renvoyer sur la page de connection
+        self.__socket.deconnect_tcp() #pour deconnecter le socket proprement
         self.destroy()
     
     def close(self)->None:
+        """ferme la fenetre
+        """
         self.destroy()
     
     def get_auth(self)->bool:
+        """retourne vrai si l'authentification est reussi
+        """
         return self.__log
     
     def get_quit(self)->bool:
-        return self.__quit
+        """retourne vrai si l'utilisateur a quitter la fenetre
+        """
+        return self.__quit#permet de verifier si l'utilisateur a quitter la fenetre pour le renvoyer sur la page de connection
     
 ##interface graphique principale##
 class Ihm(Tk):
+    """interface graphique principale
+
+    Args:
+        Tk (): ihm principale qui sert de hub pour les page secondaire
+    """
     def __init__(self,socket_tcp) -> None:
         super().__init__()
         ##variable fenetre ouvrable##
@@ -203,34 +244,44 @@ class Ihm(Tk):
         self.__param2.grid(row=3,column=0,sticky="nswe")
         self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton",command=self.deconnection)
         self.__param3.grid(row=4,column=0,sticky="nswe")
-        self.__param4 = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
-        self.__param4.grid(row=5,column=0,sticky="nswe")
-    
-    def close(self)->None:
-        self.destroy()
     
     def profil(self)->None:
+        """ouvre la page de profil
+        """
         self.__profil = profil(self)
         self.__profil.mainloop()
         
     
     def appel(self)->None:
+        """ouvre la page d'appel
+        """
         self.__appel = appel(self)
         self.__appel.mainloop()
     
     def contact(self)->None:
+        """ouvre la page de contact
+        """
         self.__contact = contact(self)
         self.__contact.mainloop()
     
     def deconnection(self):
+        """deconnecte le socket proprement et renvoie l'utilisateur sur la page de connection
+        """
         self.__socket.deconnect_tcp()
         self.destroy()
         main()
     
     def get_sockert(self)->Client_tcp:
+        """retourne le socket tcp
+        """
         return self.__socket
 
 class profil(Toplevel):
+    """page de profil, affiche le nom de l'utilisateur
+
+    Args:
+        Toplevel (Toplevel): page de profil enfant de l'ihm principale
+    """
     def __init__(self,parent) -> None:
         super().__init__()
         self.__parent = parent
@@ -265,10 +316,16 @@ class profil(Toplevel):
         self.__quit.grid(row=5,column=0,sticky="nswe")
         
     def close(self)->None:
+        """ferme la fenetre
+        """
         self.destroy()
         
         
 class appel(Toplevel):
+    """page d'appel, permet de choisir qui appeler puis de l'appeler
+
+    info: ne marche pas encore
+    """
     def __init__(self, parent):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
@@ -306,25 +363,34 @@ class appel(Toplevel):
         self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
         self.__btn_appel = Button(self.__main,text="appeler",command=self.call)
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
-        self.__btn_quitter = Button(self.__main,text="quitter",command=self.close)
+        self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
-        self.__lbl_liste = ttk.Label(self.__main,text=f"liste des appel : {self.__list_2_call}",style="danger.TLabel")
-        self.__lbl_liste.grid(row=2,column=0,columnspan=2,sticky="nswe")
-        self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        self.__label_erreur = ttk.Label(self.__main,text="")
         
         
     def set_who_call(self,name)->None:
+        """renvois une liste de personne a appeler
+
+        Args:
+            name (str): nom ou mail de la personne a appeler
+        """
         if name not in self.__list_2_call and name != self.__socket.get_my_name():
             self.__list_2_call.append(name)
-            self.__lbl_liste.config(text=f"liste des appel : {self.__list_2_call}")
         else:
             self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi O_O")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
     
     def get_who_call(self)->list:
+        """retourn la liste des personne a appeler
+
+        Returns:
+            list: liste de str
+        """
         return self.__list_2_call
         
     def call(self)->None:
+        """appel les personne dans la liste et ouvre une fenetre d'appel
+        """
         try:
             self.__socket.appelle(self.__list_2_call)
             appel_en_cour(self).mainloop()
@@ -333,12 +399,16 @@ class appel(Toplevel):
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
             
     def racroche(self)->None:
+        """racroche l'appel utiliser pour fermer la fenetre d'appel
+        """
         self.__socket.stop_appel()
     
     def close(self)->None:
         self.destroy()
 
 class appel_en_cour(Toplevel):
+    """fenetre d'appel en cour affiche les personne qui appel et permet de racrocher
+    """
     def __init__(self, parent):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
@@ -369,10 +439,13 @@ class appel_en_cour(Toplevel):
         self.__btn_racrocher.grid(row=0,column=0,sticky="nswe")
         
     def close(self)->None:
+        """ferme la fenetre et racroche l'appel
+        """
         self.__parent.racroche()
         self.destroy()
 
 class contact(Toplevel):
+    """page de contact, affiche les contact de l'utilisateur"""
     def __init__(self,socket) -> None:
         super().__init__()
         self.__contact = socket.get_contact()
@@ -406,6 +479,7 @@ class contact(Toplevel):
 
 
 class appel_entrant():
+    """page d'appel entrant, affiche les personne qui appel et permet d'accepter ou de refuser l'appel"""
     def __init__(self, who,socket):
         super().__init__()
         self.__socket = socket
@@ -441,17 +515,24 @@ class appel_entrant():
 
 
     def accept(self)->None:
+        """accepte l'appel et ouvre une fenetre d'appel
+        """
         self.destroy()
         self.__socket.accept_appel()
         appel_en_cour(self).mainloop()
 
     def refu(self)->None:
+        """refuse l'appel et ferme la fenetre
+        """
         self.destroy()
         self.__socket.refuse_appel()
 
 
 # ========== fonction ==========
 def appel_entrant()->None:
+    """fonction qui permet de lancer la page d'appel entrant
+    info : pas encore inplementer car pas tester
+    """
     socket : reception = reception()
     while socket.get_appel() == False:
         print("wait")
@@ -460,6 +541,8 @@ def appel_entrant()->None:
     appel_entrant(who,socket).mainloop()
 
 def main():
+    """fonction qui permet de lancer le programme
+    """
     connect : Connection_tcp = Connection_tcp()
     connect.mainloop()
     socket_tcp : Client_tcp = connect.get_sockert()
@@ -476,6 +559,7 @@ def main():
     if quitt == True:
         main()
     else:
+        Thread1 = Thread(target=appel_entrant).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
