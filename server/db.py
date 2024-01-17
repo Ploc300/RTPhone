@@ -157,7 +157,7 @@ class Database:
     def connected_client(self):
         _return: bool = False
         try:
-            self.__cursor.execute(f'SELECT status FROM users')
+            self.__cursor.execute(f'SELECT name,status FROM users')
             _return = True if self.__cursor.fetchall() else False
         except Exception as e:
             debug(f'Failed to get status')

@@ -100,8 +100,7 @@ class Client_tcp:
         contacte = self.receive()
         return contacte
 
-
-    def add_contact(self)->None:
+    def add_contact(self)->bool:
         data: dict = {'token': self.__token, 'username': self.__my_name, 'contact': 'test'}
         self.envoie(f'13 {json.dumps(data)}')
         contacte = self.receive()
