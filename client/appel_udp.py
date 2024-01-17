@@ -67,3 +67,12 @@ class Client_udp(Thread):
                 self.__socket_echange.close()
                 print("Connexion fermée")
 
+
+if __name__ == "__main__":
+        serveur = '127.0.0.1'
+        port = 5001
+        client = Client_udp(serveur, port, 5002)
+        client.start()
+        input("Appuyer sur une touche pour raccrocher")
+        client.racroche()
+
