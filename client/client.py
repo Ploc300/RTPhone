@@ -146,13 +146,14 @@ class Client_tcp:
 def main():
     """fonction de test"""
     # declaration des variables
-    ip_serveur: str = '172.20.10.3'
+    ip_serveur: str = '127.0.0.1'
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
     client.connect_tcp()
     client.auth('test', 'test')
-    print(client.get_contact())
+    client.appelle(['admin'])
+    client.stop_appel()
     client.deconnect_tcp()
 
 
