@@ -57,7 +57,7 @@ class Connection_tcp(Tk):
             if self.__connection.get_err_con() != None:
                 raise Exception(self.__connection.get_err_con())
             self.__link = True
-            self.close()
+            self.destroy()
         except Exception as ex:
             #print(ex)
             self.__label_erreur.config(text=f"erreur de connection : {ex}")
@@ -65,6 +65,7 @@ class Connection_tcp(Tk):
             
     def close(self)->None:
         self.destroy()
+        os._exit(0)
     
     def get_connection(self)->Client_tcp:
         return self.__link
@@ -200,7 +201,7 @@ class Ihm(Tk):
         self.__param1.grid(row=1,column=0,sticky="nswe")
         self.__param2 = ttk.Button(self.__main,text="contact",style="danger.TButton")
         self.__param2.grid(row=3,column=0,sticky="nswe")
-        self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton")
+        self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton",command=self.deconnection)
         self.__param3.grid(row=4,column=0,sticky="nswe")
         self.__param4 = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__param4.grid(row=5,column=0,sticky="nswe")
@@ -221,7 +222,7 @@ class Ihm(Tk):
         self.__contact = contact(self)
         self.__contact.mainloop()
     
-    def logout(self):
+    def deconnection(self):
         self.__socket.deconnect_tcp()
         self.destroy()
         main()
@@ -230,10 +231,10 @@ class Ihm(Tk):
         return self.__socket
 
 class profil(Toplevel):
-    def __init__(self,socket) -> None:
+    def __init__(self,parent) -> None:
         super().__init__()
-        self.__log : bool = False
-        self.__quit : bool = False
+        self.__parent = parent
+        self.__me = self.__parent.get_sockert().get_my_name()
         #setting title
         self.title("RTPhone/login")
         #setting w indow size
@@ -258,13 +259,15 @@ class profil(Toplevel):
         ##main##
         self.__sous_titre = ttk.Label(self.__main,text="profil",style="danger.TLabel",font=("Courier", 100))
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
-        self.__label_nom = ttk.Label(self.__main,text=f"nom : {self.get_my_name()} ",style="danger.TLabel")
+        self.__label_nom = ttk.Label(self.__main,text=self.__me,style="danger.TLabel",font=("Courier", 50))
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
+        self.__quit = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
+        self.__quit.grid(row=5,column=0,sticky="nswe")
+        
+    def close(self)->None:
+        self.destroy()
         
         
-    def get_my_name(self)->str:
-        return self.__socket.get_my_name()
-    
 class appel(Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -303,14 +306,19 @@ class appel(Toplevel):
         self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
         self.__btn_appel = Button(self.__main,text="appeler",command=self.call)
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
+        self.__btn_quitter = Button(self.__main,text="quitter",command=self.close)
+        self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
+        self.__lbl_liste = ttk.Label(self.__main,text=f"liste des appel : {self.__list_2_call}",style="danger.TLabel")
+        self.__lbl_liste.grid(row=2,column=0,columnspan=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
         
         
     def set_who_call(self,name)->None:
         if name not in self.__list_2_call and name != self.__socket.get_my_name():
             self.__list_2_call.append(name)
+            self.__lbl_liste.config(text=f"liste des appel : {self.__list_2_call}")
         else:
-            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi wesh O_O")
+            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi O_O")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
     
     def get_who_call(self)->list:
@@ -326,6 +334,9 @@ class appel(Toplevel):
             
     def racroche(self)->None:
         self.__socket.stop_appel()
+    
+    def close(self)->None:
+        self.destroy()
 
 class appel_en_cour(Toplevel):
     def __init__(self, parent):
@@ -364,8 +375,7 @@ class appel_en_cour(Toplevel):
 class contact(Toplevel):
     def __init__(self,socket) -> None:
         super().__init__()
-        self.__log : bool = False
-        self.__quit : bool = False
+        self.__contact = socket.get_contact()
         #setting title
         self.title("RTPhone/login")
         #setting w indow size
@@ -390,11 +400,10 @@ class contact(Toplevel):
         ##main##
         self.__sous_titre = ttk.Label(self.__main,text="profil",style="danger.TLabel",font=("Courier", 100))
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
-        self.__label_nom = ttk.Label(self.__main,text=f"contact : {self.get_contact()} ",style="danger.TLabel")
+        self.__label_nom = ttk.Label(self.__main,text=f"contact : {self.__contact} ",style="danger.TLabel")
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
         
-    def get_contact(self)->list:
-        return self.__socket.get_contact()
+
 
 class appel_entrant():
     def __init__(self, who,socket):

@@ -14,7 +14,7 @@ class Client_tcp:
         self.__Client_udp = None
         self.socket_client = None
         self.__token: str = None
-        self.__my_name: str = None
+        self.__my_name: str = "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
         self.__erreur_con : str = None
         self.__erreur_auth : str = None
         self.__reception_appel : str = None
@@ -52,16 +52,17 @@ class Client_tcp:
             if nom != '':
                 data: dict = {'username': nom, 'password': mdp}
                 self.envoie(f'01 {json.dumps(data)}')
+                self.__my_name = data['username']
             else:
                 data: dict = {'username': mail, 'password': mdp}
                 self.envoie(f'01 {json.dumps(data)}')
+                self.__my_name = data['username']
             buffer = self.receive()
             code = buffer[:2]
             data = buffer[3:]
             if code == '03':
                 self.__token = json.loads(data)['token']
                 #self.__reception_appel = reception_appel.reception(self.ip_serveur, 5003).start()
-                self.__my_name = nom
                 self.__authentifier = True
             elif code == '04':
                 self.__authentifier = False
@@ -123,6 +124,15 @@ class Client_tcp:
     
     def stop_appel(self)->None:
         self.__Client_udp.racroche()
+    
+    def get_my_name(self)->str:
+        retour: str = None
+        if "@" in self.__my_name:
+            retour = f"mail : {self.__my_name}"
+        else:
+            retour = f"nom : {self.__my_name}"
+            print(self.__my_name)
+        return retour
 
 
 
