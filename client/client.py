@@ -144,6 +144,7 @@ class Client_tcp:
 
 # ========== Main ==========
 def main():
+    """fonction de test"""
     # declaration des variables
     ip_serveur: str = '172.20.10.3'
     port_serveur: int = 5000
