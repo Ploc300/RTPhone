@@ -203,11 +203,6 @@ class Ihm(Tk):
         self.__param2.grid(row=3,column=0,sticky="nswe")
         self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton",command=self.deconnection)
         self.__param3.grid(row=4,column=0,sticky="nswe")
-        self.__param4 = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
-        self.__param4.grid(row=5,column=0,sticky="nswe")
-    
-    def close(self)->None:
-        self.destroy()
     
     def profil(self)->None:
         self.__profil = profil(self)
@@ -306,17 +301,14 @@ class appel(Toplevel):
         self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
         self.__btn_appel = Button(self.__main,text="appeler",command=self.call)
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
-        self.__btn_quitter = Button(self.__main,text="quitter",command=self.close)
+        self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
-        self.__lbl_liste = ttk.Label(self.__main,text=f"liste des appel : {self.__list_2_call}",style="danger.TLabel")
-        self.__lbl_liste.grid(row=2,column=0,columnspan=2,sticky="nswe")
-        self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        self.__label_erreur = ttk.Label(self.__main,text="")
         
         
     def set_who_call(self,name)->None:
         if name not in self.__list_2_call and name != self.__socket.get_my_name():
             self.__list_2_call.append(name)
-            self.__lbl_liste.config(text=f"liste des appel : {self.__list_2_call}")
         else:
             self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi O_O")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
@@ -476,6 +468,7 @@ def main():
     if quitt == True:
         main()
     else:
+        
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
