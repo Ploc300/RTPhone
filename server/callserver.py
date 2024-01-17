@@ -2,10 +2,11 @@
 from debug import debug, debug_verbose
 from json import loads, dumps
 from threading import Thread
-import socket, time, pyaudio
+import socket, time, pyaudio, dotenv
 from db import Database
 
 # ========== Constant ==========
+dotenv.load_dotenv()
 
 # ========== Color ==========
 ERROR: str = '\033[91m[ERROR]\033[0m {error}'
@@ -37,23 +38,7 @@ class CallServer:
         self.__sending_socket: socket.socket = None
         self.__sending_thread: Thread = None
 
-        self.__sample_rate: int = 44100
-        self.frames_per_buffer: int = 4096
-
-        self.__audio_input: pyaudio.Stream = pyaudio.PyAudio().open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=self.__sample_rate,
-            input=True,
-            frames_per_buffer=self.frames_per_buffer
-        )
-        self.__audio_output: pyaudio.Stream = pyaudio.PyAudio().open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=self.__sample_rate,
-            output=True,
-            frames_per_buffer=self.frames_per_buffer
-        )
+        self.__frames_per_buffer: int = 4096
 
         self.__communication_status: bool = False
 
@@ -79,7 +64,8 @@ class CallServer:
         """
         buffer: bytes = b''
         if not self.__receiving_socket is None:
-            buffer, addr = self.__receiving_socket.recvfrom(self.frames_per_buffer*2)
+            buffer, addr = self.__receiving_socket.recvfrom(self.__frames_per_buffer*2)
+            print(buffer)
             if not addr[0] in self.__clients:
                 buffer = b'Nothing or not a client'
             else:
@@ -89,29 +75,13 @@ class CallServer:
                     if len(self.__clients) == 0:
                         debug(INFO.format(info=f'callserver.py: No more clients connected'))
                         self.stop()
+                else:
+                    Thread(target=self.send, args=(buffer, addr[0])).start()
                 debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
                 debug_verbose(f'callserver.py: {buffer}')
+        else:
+            debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
         return buffer
-    
-    def audio_input(self) -> None:
-        """
-            Recoit les données audio du client
-
-            :return: None
-        """
-        while self.__communication_status:
-            buffer: bytes = self.__audio_input.read(self.frames_per_buffer)
-            self.send(buffer, self.__receiving_socket.getsockname())
-
-    def audio_output(self) -> None:
-        """
-            Envoie les données audio aux clients
-
-            :return: None
-        """
-        while self.__communication_status:
-            buffer: bytes = self.receive()
-            self.__audio_output.write(buffer, self.frames_per_buffer)
 
     def init_sockets(self) -> None:
         """
@@ -129,8 +99,7 @@ class CallServer:
 
             :return: None
         """
-        self.__receiving_thread = Thread(target=self.audio_input)
-        self.__sending_thread = Thread(target=self.audio_output)
+        self.__receiving_thread = Thread(target=self.receive)
 
     def start(self) -> None:
         """
@@ -142,7 +111,6 @@ class CallServer:
         self.init_sockets()
         self.init_threads()
         self.__receiving_thread.start()
-        self.__sending_thread.start()
 
     def stop(self) -> None:
         """
@@ -275,5 +243,9 @@ class CallRequest:
             
 
 # ========== Main ==========
-
-
+if __name__ == "__main__":
+    clients: set = set()
+    clients.add(('127.0.0.1', 5002)) # ip client 1 (ip, port)
+    # clients.add(('', 5002)) # ip client 2 (ip, port)
+    appel = CallServer(clients).start()
+    input('Press enter to stop')
