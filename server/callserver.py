@@ -36,7 +36,6 @@ class CallServer:
         self.__receiving_thread: Thread = None
 
         self.__sending_socket: socket.socket = None
-        self.__sending_thread: Thread = None
 
         self.__frames_per_buffer: int = 4096
 
@@ -51,10 +50,11 @@ class CallServer:
 
             :return: None
         """
+        print("Sending data")
         if not self.__sending_socket is None:
             for client in self.__clients:
                 if client != source:
-                    self.__sending_socket.sendto(data, client)
+                    self.__sending_socket.sendto(data, (client, self.__port))
 
     def receive(self) -> bytes:
         """
@@ -62,27 +62,25 @@ class CallServer:
 
             :return: Données reçues
         """
-        buffer: bytes = b''
-        if not self.__receiving_socket is None:
-            buffer, addr = self.__receiving_socket.recvfrom(self.__frames_per_buffer*2)
-            print(buffer)
-            if not addr[0] in self.__clients:
-                buffer = b'Nothing or not a client'
-            else:
-                if buffer == b'42':
-                    self.__clients.remove(addr[0])
-                    debug(INFO.format(info=f'callserver.py: {addr[0]} disconnected'))
-                    if len(self.__clients) == 0:
-                        debug(INFO.format(info=f'callserver.py: No more clients connected'))
-                        self.stop()
+        while self.__communication_status:
+            buffer: bytes = b''
+            if not self.__receiving_socket is None:
+                buffer, addr = self.__receiving_socket.recvfrom(self.__frames_per_buffer*2)
+                if not addr[0] in self.__clients or buffer == b'':
+                    buffer = b'Nothing or not a client'
                 else:
-                    Thread(target=self.send, args=(buffer, addr[0])).start()
-                debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
-                debug_verbose(f'callserver.py: {buffer}')
-        else:
-            debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
-        if self.__communication_status:
-            self.receive()
+                    if buffer == b'42':
+                        self.__clients.remove(addr[0])
+                        debug(INFO.format(info=f'callserver.py: {addr[0]} disconnected'))
+                        if len(self.__clients) == 0:
+                            debug(INFO.format(info=f'callserver.py: No more clients connected'))
+                            self.stop()
+                    else:
+                        Thread(target=self.send, args=(buffer, addr[0])).start()
+                    debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
+                    # debug_verbose(f'callserver.py: {buffer}')
+            else:
+                debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
 
     def init_sockets(self) -> None:
         """
@@ -246,7 +244,7 @@ class CallRequest:
 # ========== Main ==========
 if __name__ == "__main__":
     clients: set = set()
-    clients.add(('127.0.0.1', 5002)) # ip client 1 (ip, port)
+    clients.add('127.0.0.1') # ip client 1 (ip, port)
     # clients.add(('', 5002)) # ip client 2 (ip, port)
     appel = CallServer(clients).start()
     input('Press enter to stop')
