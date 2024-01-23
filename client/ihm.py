@@ -365,6 +365,8 @@ class appel(Toplevel):
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
+        self.__lbl_who_call = ttk.Label(self.__main,text="personne a appeler :",style="danger.TLabel")
+        self.__lbl_who_call.grid(row=2,column=0,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
         
         
@@ -376,18 +378,11 @@ class appel(Toplevel):
         """
         if name not in self.__list_2_call and name != self.__socket.get_my_name():
             self.__list_2_call.append(name)
+            self.__lbl_who_call.config(text=f"personne a appeler : {self.__list_2_call}")
         else:
-            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste, ou c'est toi O_O")
+            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
-    
-    def get_who_call(self)->list:
-        """retourn la liste des personne a appeler
 
-        Returns:
-            list: liste de str
-        """
-        return self.__list_2_call
-        
     def call(self)->None:
         """appel les personne dans la liste et ouvre une fenetre d'appel
         """
@@ -529,11 +524,12 @@ class appel_entrant():
 
 
 # ========== fonction ==========
-def appel_entrant()->None:
+def appel_entrant(ip_server)->None:
     """fonction qui permet de lancer la page d'appel entrant
     info : pas encore inplementer car pas tester
     """
-    socket : reception = reception()
+    print(ip_server)
+    socket : reception = reception(ip_server,5003)
     while socket.get_appel() == False:
         print("wait")
         socket.recevoir()
@@ -559,7 +555,8 @@ def main():
     if quitt == True:
         main()
     else:
-        Thread1 = Thread(target=appel_entrant).start()
+        ip_server : str = socket_tcp.get_ip()
+        Thread1 = Thread(target=appel_entrant,args=ip_server).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 

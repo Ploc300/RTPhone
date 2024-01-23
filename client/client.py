@@ -11,10 +11,10 @@ class Client_tcp:
     """class qui permet de gerer la connexion avec le serveur
     """
     def __init__(self, ip_serveur: str, port_serveur: int)->None:
-        self.ip_serveur = ip_serveur
-        self.port_serveur = port_serveur
+        self.__ip_serveur = ip_serveur
+        self.__port_serveur = port_serveur
         self.__Client_udp = None
-        self.socket_client = None
+        self.__socket_client = None
         self.__token: str = None
         self.__my_name: str = ""
         self.__erreur_con : str = None
@@ -25,26 +25,26 @@ class Client_tcp:
     def connect_tcp(self)->None:
         """permet de se connecter au serveur"""
         try:
-            self.socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket_client.settimeout(5)
-            self.socket_client.connect((self.ip_serveur, self.port_serveur))
+            self.__socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.__socket_client.settimeout(5)
+            self.__socket_client.connect((self.__ip_serveur, self.__port_serveur))
         except Exception as ex:
             self.__erreur_con = f"le serveur est inateniable : {ex}"
 
     def deconnect_tcp(self)->None:
         """permet de se deconnecter du serveur"""
         data: dict = {}
-        self.socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
-        self.socket_client.close()
+        self.__socket_client.send(f'00 {json.dumps(data)}'.encode('utf-8'))
+        self.__socket_client.close()
     
     def envoie(self, msg: str)-> None:
         """permet d'envoyer un message au serveur"""
-        self.socket_client.send(msg.encode('utf-8'))
+        self.__socket_client.send(msg.encode('utf-8'))
     
     def receive(self)-> str: 
         """permet de recevoir un message du serveur"""
         try:
-            msg = self.socket_client.recv(1024)
+            msg = self.__socket_client.recv(1024)
             if msg == None:
                 raise Exception
             return msg.decode('utf-8')
@@ -138,6 +138,10 @@ class Client_tcp:
             retour = f"nom : {self.__my_name}"
             print(self.__my_name)
         return retour
+
+    def get_ip(self)->str:
+        """permet de recuperer l'ip du serveur"""
+        return self.__ip_serveur
 
 
 
