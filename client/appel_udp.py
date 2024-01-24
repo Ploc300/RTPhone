@@ -74,7 +74,7 @@ class Client_udp(Thread):
 
 
 if __name__ == "__main__":
-        serveur = '127.0.0.1'
+        serveur = '172.20.10.3'
         port = 5001
         client = Client_udp(serveur, port, 5002)
         client.start()

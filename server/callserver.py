@@ -51,9 +51,12 @@ class CallServer:
 
             :return: None
         """
+        print("sending")
         if not self.__sending_socket is None:
             for client in self.__clients:
+                print(client)
                 if client != source:
+                    print(f"send to {client}")
                     self.__sending_socket.sendto(data, client)
 
     def receive(self) -> bytes:
@@ -65,7 +68,6 @@ class CallServer:
         buffer: bytes = b''
         if not self.__receiving_socket is None:
             buffer, addr = self.__receiving_socket.recvfrom(self.__frames_per_buffer*2)
-            print(buffer)
             if not addr[0] in self.__clients:
                 buffer = b'Nothing or not a client'
             else:
@@ -76,13 +78,15 @@ class CallServer:
                         debug(INFO.format(info=f'callserver.py: No more clients connected'))
                         self.stop()
                 else:
-                    Thread(target=self.send, args=(buffer, addr[0])).start()
+                    self.send(buffer, addr[0])
                 debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
                 debug_verbose(f'callserver.py: {buffer}')
         else:
             debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
         if self.__communication_status:
-            self.receive()
+            try:
+                self.receive()
+            except RecursionError: pass
 
     def init_sockets(self) -> None:
         """
@@ -246,7 +250,7 @@ class CallRequest:
 # ========== Main ==========
 if __name__ == "__main__":
     clients: set = set()
-    clients.add(('127.0.0.1', 5002)) # ip client 1 (ip, port)
-    # clients.add(('', 5002)) # ip client 2 (ip, port)
+    clients.add(('172.20.10.3', 5002)) # ip client 1 (ip, port)
+    clients.add(('172.20.10.13', 5002)) # ip client 2 (ip, port)
     appel = CallServer(clients).start()
     input('Press enter to stop')
