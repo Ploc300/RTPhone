@@ -233,7 +233,7 @@ class CallRequest:
         self.__socket.close()
              
                 
-def test_appel(ip_list: list) -> None:
+def test_appel(ip_list: list, event=None) -> None:
     """
         Teste l'appel
 
