@@ -586,4 +586,13 @@ def main():
             
 
 if __name__ == "__main__":
+    print("""
+88888888ba  888888888888  88888888ba   88                                                      ,ad8888ba,   88  88                                   
+88      "8b      88       88      "8b  88                                                     d8"'    `"8b  88  ""                            ,d     
+88      ,8P      88       88      ,8P  88                                                    d8'            88                                88     
+88aaaaaa8P'      88       88aaaaaa8P'  88,dPPYba,    ,adPPYba,   8b,dPPYba,    ,adPPYba,     88             88  88   ,adPPYba,  8b,dPPYba,  MM88MMM  
+88    88'        88       88      '    88P'    "8a  a8"     "8a  88P'   `"8a  a8P_____88     88             88  88  a8P_____88  88P'   `"8a   88     
+88    `8b        88       88           88       88  8b       d8  88       88  8PP      "     Y8,            88  88  8PP         88       88   88     
+88     `8b       88       88           88       88  "8a,   ,a8"  88       88  "8b,   ,aa      Y8a.    .a8P  88  88  "8b,   ,aa  88       88   88,    
+88      `8b      88       88           88       88   `"YbbdP"'   88       88   `"Ybbd8"'       `"Y8888Y"'   88  88   `"Ybbd8"'  88       88   "Y888  """)
     main()
