@@ -258,14 +258,11 @@ class TestAppel(Toplevel):
         self.__frame_buttons = ttk.Frame(self)
         self.__frame_console = ttk.Frame(self)
 
-        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= test_appel(list(self.__ip_list)))
+        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= lambda event: test_appel(list(self.__ip_list)))
         self.__button_start.grid(row=0, column=1, sticky='ew')
 
         self.__entry_ip_list = ttk.Entry(self.__frame_buttons, style='TEntry', textvariable=self.__ip_list)
         self.__entry_ip_list.grid(row=0, column=0, sticky='ew')
-
-        self.__button_stop = ttk.Button(self.__frame_buttons, text='Arrêter', style='TButton', command=lambda: stop_server(self.__parent))
-        self.__button_stop.grid(row=0, column=2, sticky='ew')
 
 
     def close(self):
