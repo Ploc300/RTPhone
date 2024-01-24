@@ -261,7 +261,7 @@ class TestAppel(Toplevel):
         self.__button_start.grid(row=0, column=1, sticky='ew')
 
         self.__entry_ip_list = ttk.Entry(self.__frame_buttons, style='TEntry', textvariable=self.__ip_list)
-        self.__entry_ip_list.insert(0, '['127.0.0.1','']')
+        self.__entry_ip_list.insert(0, "['127.0.0.1','']")
         self.__entry_ip_list.grid(row=0, column=0, sticky='ew')
 
         self.__frame_buttons.grid(row=0, column=0, sticky='ew')
