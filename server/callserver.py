@@ -53,6 +53,7 @@ class CallServer:
         print("Sending data")
         if not self.__sending_socket is None:
             for client in self.__clients:
+                print(client)
                 if client != source:
                     self.__sending_socket.sendto(data, (client, self.__port))
 
@@ -232,7 +233,17 @@ class CallRequest:
         self.__socket.close()
              
                 
-    
+def test_appel(ip_list: list, event=None) -> None:
+    """
+        Teste l'appel
+
+        :return: None
+    """
+    clients = set()
+    for ip in ip_list:
+        clients.add(ip)
+    appel = CallServer(clients).start()
+    input('Press enter to stop')
         
         
     

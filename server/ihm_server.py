@@ -5,6 +5,7 @@ from server import ListeningService, ClientHandler, ClientManager, stop_everythi
 from threading import Thread
 import os, sys, dotenv
 from io import StringIO
+from callserver import test_appel
 
 # ===== Constants =====
 dotenv.load_dotenv()
@@ -55,6 +56,7 @@ class Ihm(Tk):
         # Variables for opened windows
         self.__is_fen_config = False
         self.__is_fen_server = False
+        self.__is_fen_test_appel = False
 
         # Variables for server configuration
         self.__server_port = 5000 # Default port
@@ -81,6 +83,9 @@ class Ihm(Tk):
 
         self.__button_server = ttk.Button(self, text = 'Serveur', bootstyle='primary', command = self.open_server)
         self.__button_server.grid(row = 1, column = 0)
+
+        self.__button_test_appel = ttk.Button(self, text = 'Test appel', bootstyle='primary', command = self.open_test_appel)
+        self.__button_test_appel.grid(row = 2, column = 0)
 
         self.__button_quit = ttk.Button(self, text = 'Quitter', command = self.close)
         self.__button_quit.grid(row = self.grid_size()[1], column = 0)
@@ -115,6 +120,16 @@ class Ihm(Tk):
         if not self.__is_fen_server:
             self.__is_fen_server = Server(self)
             self.__is_fen_server.mainloop()
+
+    def open_test_appel(self) -> None:
+        """
+            Ouvre une fenêtre de test d'appel
+
+            :return: None
+        """
+        if not self.__is_fen_test_appel:
+            self.__is_fen_test_appel = TestAppel(self)
+            self.__is_fen_test_appel.mainloop()
         
 
 class Configuration(Toplevel):
@@ -149,6 +164,7 @@ class Configuration(Toplevel):
 
         self.__entry_server_port = ttk.Entry(self.__frame_port, style='TEntry')
         self.__entry_server_port.grid(row=0, column=1, sticky='w')
+        
 
         self.__label_sever_client_max = ttk.Label(self.__frame_client_max, text='Nombre maximum de clients:', style='TLabel')
         self.__label_sever_client_max.grid(row=0, column=0, sticky='e')
@@ -158,6 +174,8 @@ class Configuration(Toplevel):
 
         self.__entry_server_client_max = ttk.Entry(self.__frame_client_max, style='TEntry')
         self.__entry_server_client_max.grid(row=0, column=1, sticky='w')
+        self.__entry_server_port.bind('<Return>', lambda event: self.__entry_server_client_max.focus())
+        self.__entry_server_client_max.bind('<Return>', lambda event: self.save())
 
         self.__button_save = ttk.Button(self, text='Sauvegarder', style='TButton', command=self.save)
 
@@ -219,6 +237,39 @@ class Server(Toplevel):
         self.__parent._Ihm__is_fen_server = False
         self.destroy()
 
+class TestAppel(Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.__title = f'{self.master.title()}: {self.__class__.__name__}'
+        self.__parent = parent
+        self.title(self.__title)
+        self.geometry(f'500x500')
+        self.resizable(RESIZABLE, RESIZABLE)
+        self.protocol('WM_DELETE_WINDOW', self.close)
+        self.attributes('-toolwindow', True)
+        self.attributes('-topmost', True)
+        self.__ip_list: list = []
+        self.init_window()
+
+    def init_window(self):
+        self.__bg_label = ttk.Label(self, image=self.__parent._Ihm__bg_image)
+        self.__bg_label.place(x=0, y=0)
+
+        self.__frame_buttons = ttk.Frame(self)
+
+        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= lambda: test_appel(list(self.__ip_list)))
+        self.__button_start.grid(row=0, column=1, sticky='ew')
+
+        self.__entry_ip_list = ttk.Entry(self.__frame_buttons, style='TEntry', textvariable=self.__ip_list)
+        self.__entry_ip_list.insert(0, "['127.0.0.1','']")
+        self.__entry_ip_list.grid(row=0, column=0, sticky='ew')
+
+        self.__frame_buttons.grid(row=0, column=0, sticky='ew')
+
+
+    def close(self):
+        self.__parent._Ihm__is_fen_test_appel = False
+        self.destroy()
 class ConsoleOutput(StringIO):
     def __init__(self, label: ttk.Label):
         super().__init__()
