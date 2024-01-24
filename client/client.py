@@ -119,6 +119,7 @@ class Client_tcp:
         """
         data: dict = {'token': self.__token, 'users': usernames}
         try:
+            print("client.py/appel")
             self.envoie(f'11 {json.dumps(data)}')
             self.__Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
             self.__Client_udp.start()
@@ -136,7 +137,6 @@ class Client_tcp:
             retour = f"mail : {self.__my_name}"
         else:
             retour = f"nom : {self.__my_name}"
-            print(self.__my_name)
         return retour
 
     def get_ip(self)->str:

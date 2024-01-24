@@ -395,7 +395,9 @@ class appel(Toplevel):
         """appel les personne dans la liste et ouvre une fenetre d'appel
         """
         try:
+            print("jeanne")
             self.__socket.appelle(self.__list_2_call)
+            print("aux")
             appel_en_cour(self).mainloop()
         except Exception as ex:
             self.__label_erreur.config(text=f"erreur : {ex}")
@@ -413,8 +415,10 @@ class appel(Toplevel):
         """racroche l'appel utiliser pour fermer la fenetre d'appel
         """
         self.__socket.stop_appel()
+        self.__list_2_call = []
     
     def close(self)->None:
+        self.racroche()
         self.destroy()
 
 class appel_en_cour(Toplevel):
@@ -440,11 +444,15 @@ class appel_en_cour(Toplevel):
         ##frames_name##
         self.__nb_name = len(self.__parent.get_who_call())
         self.__list_name = self.__parent.get_who_call()
-        for i in range(0,self.__nb_name,2):
-            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i],style="danger.TLabel")
-            self.__label_name.grid(row=i,column=0,sticky="nswe")
-            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i+1],style="danger.TLabel")
-            self.__label_name.grid(row=i,column=1,sticky="nswe")
+        if self.__nb_name >= 2:
+            for i in range(0,self.__nb_name,2):
+                self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i],style="danger.TLabel")
+                self.__label_name.grid(row=i,column=0,sticky="nswe")
+                self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i+1],style="danger.TLabel")
+                self.__label_name.grid(row=i,column=1,sticky="nswe")
+        else:
+            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[0],style="danger.TLabel")
+            self.__label_name.grid(row=0,column=0,sticky="nswe")
         ##frames_btn##
         self.__btn_racrocher = ttk.Button(self.__frams_btn,text="racrocher",style="danger.TButton",command=self.close)
         self.__btn_racrocher.grid(row=0,column=0,sticky="nswe")
@@ -571,8 +579,8 @@ def main():
     if quitt == True:
         main()
     else:
-        ip_server : str = socket_tcp.get_ip()
-        Thread1 = Thread(target=appel_entrant,args=ip_server).start()
+        #ip_server : str = socket_tcp.get_ip()
+        #Thread1 = Thread(target=appel_entrant,args=ip_server).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
