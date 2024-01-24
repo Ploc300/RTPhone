@@ -359,28 +359,36 @@ class appel(Toplevel):
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
         self.__entree_nom = ttk.Entry(self.__main)
         self.__entree_nom.grid(row=1,column=1,sticky="nswe")
-        self.__btn_ajouter = Button(self.__main,text="ajouter",command=self.set_who_call(self.__entree_nom.get()))
+        self.__lbl_who_call = ttk.Label(self.__main,text="personne a appeler :",style="danger.TLabel")
+        self.__lbl_who_call.grid(row=2,column=0,sticky="nswe")
+        self.__btn_ajouter = Button(self.__main,text="ajouter",command=self.set_who_call)
         self.__btn_ajouter.grid(row=1,column=2,sticky="nswe")
         self.__btn_appel = Button(self.__main,text="appeler",command=self.call)
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
-        self.__lbl_who_call = ttk.Label(self.__main,text="personne a appeler :",style="danger.TLabel")
-        self.__lbl_who_call.grid(row=2,column=0,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
         
         
-    def set_who_call(self,name)->None:
+    def set_who_call(self)->None:
         """renvois une liste de personne a appeler
 
         Args:
             name (str): nom ou mail de la personne a appeler
         """
-        if name not in self.__list_2_call and name != self.__socket.get_my_name():
-            self.__list_2_call.append(name)
-            self.__lbl_who_call.config(text=f"personne a appeler : {self.__list_2_call}")
+        if self.__entree_nom.get() != "": #verifie si le champ n'est pas vide
+            name = self.__entree_nom.get()
+            if name not in self.__list_2_call and name != self.__socket.get_my_name():
+                self.__list_2_call.append(name)
+                liste_nom : str = "|"
+                for i in self.__list_2_call:
+                    liste_nom += f" {i} |"
+                self.__lbl_who_call.config(text=f"personne a appeler : {liste_nom}")
+            else:
+                self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste")
+                self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
         else:
-            self.__label_erreur.config(text=f"erreur : {name} est deja dans la liste")
+            self.__label_erreur.config(text=f"erreur : le champ est vide")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
 
     def call(self)->None:
@@ -392,7 +400,15 @@ class appel(Toplevel):
         except Exception as ex:
             self.__label_erreur.config(text=f"erreur : {ex}")
             self.__label_erreur.grid(row=3,column=0,columnspan=4,sticky="nswe")
-            
+
+    def get_who_call(self)->list:
+        """retourne la liste des personne a appeler
+
+        Returns:
+            list: liste des personne a appeler
+        """
+        return self.__list_2_call
+          
     def racroche(self)->None:
         """racroche l'appel utiliser pour fermer la fenetre d'appel
         """
