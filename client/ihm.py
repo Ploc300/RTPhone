@@ -418,7 +418,6 @@ class appel(Toplevel):
         self.__list_2_call = []
     
     def close(self)->None:
-        self.racroche()
         self.destroy()
 
 class appel_en_cour(Toplevel):

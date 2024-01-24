@@ -11,10 +11,10 @@ class Client_tcp:
     """class qui permet de gerer la connexion avec le serveur
     """
     def __init__(self, ip_serveur: str, port_serveur: int)->None:
-        self.__ip_serveur = ip_serveur
-        self.__port_serveur = port_serveur
-        self.__Client_udp = None
-        self.__socket_client = None
+        self.__ip_serveur :str  = ip_serveur
+        self.__port_serveur : int = port_serveur
+        self.__Client_udp : appel_udp.Client_udp = None
+        self.__socket_client : socket = None
         self.__token: str = None
         self.__my_name: str = ""
         self.__erreur_con : str = None
@@ -119,9 +119,9 @@ class Client_tcp:
         """
         data: dict = {'token': self.__token, 'users': usernames}
         try:
-            print("client.py/appel")
             self.envoie(f'11 {json.dumps(data)}')
-            self.__Client_udp = appel_udp.Client_udp(self.ip_serveur, 5001, 5002)
+            self.__Client_udp = appel_udp.Client_udp(self.__ip_serveur, 5001, 5002)
+            print(type(self.__Client_udp))
             self.__Client_udp.start()
         except Exception as ex:
             print(ex)
