@@ -233,7 +233,17 @@ class CallRequest:
         self.__socket.close()
              
                 
-    
+def test_appel(ip_list: list) -> None:
+    """
+        Teste l'appel
+
+        :return: None
+    """
+    clients = set()
+    for ip in ip_list:
+        clients.add(ip)
+    appel = CallServer(clients).start()
+    input('Press enter to stop')
         
         
     
