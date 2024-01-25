@@ -18,6 +18,8 @@ import time
 ## ========== Class ==========
 
 class Client_udp(Thread):
+        """class qui permet de gerer l'appel udp
+        """
         def __init__(self, ip_serveur: str, port_serveur: int, port_client: int) -> None:
                 super().__init__()
                 self.__ip_serveur = ip_serveur
@@ -45,11 +47,18 @@ class Client_udp(Thread):
                                 pass
         
         def reception(self):
-                self.__socket_echange.bind(('', 5002))
-                self.__appel = True
-                while self.__appel:
-                        data, addr = self.__socket_echange.recvfrom(4096*2)
-                        self.__stream_recepteur.write(data)
+                try:
+                        self.__socket_echange.bind(('', 5002))
+                        self.__appel = True
+                        while self.__appel:
+                                try:
+                                        data, _ = self.__socket_echange.recvfrom(4096*2)
+                                except ConnectionResetError:
+                                        data = b''
+                                if data != b'':
+                                        self.__stream_recepteur.write(data)
+                except OSError:
+                        print("erreur lors de la reception")
                 
         def run(self):
                 try:
@@ -66,4 +75,13 @@ class Client_udp(Thread):
                 self.__appel = False
                 self.__socket_echange.close()
                 print("Connexion fermée")
+
+
+if __name__ == "__main__":
+        serveur = '172.20.10.3'
+        port = 5001
+        client = Client_udp(serveur, port, 5002)
+        client.start()
+        input("Appuyer sur une touche pour raccrocher")
+        client.racroche()
 
