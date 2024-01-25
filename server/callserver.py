@@ -55,7 +55,7 @@ class CallServer:
             for client in self.__clients:
                 print(client)
                 if client != source:
-                    self.__sending_socket.sendto(data, (client, self.__port))
+                    self.__sending_socket.sendto(data, (client, 5002))
 
     def receive(self) -> bytes:
         """
