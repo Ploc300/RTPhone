@@ -56,6 +56,7 @@ class Connection_tcp(Tk):
         self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        
 
     def connection(self)->None:
         """connection au serveur : ouvre une connection tcp avec le serveur
@@ -142,6 +143,8 @@ class Authentification_tcp(Tk):
         self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.__btn_quitter)
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        ##close window##
+        self.protocol('WM_DELETE_WINDOW', self.__btn_quitter)
         
     
     def auth(self)->None:
@@ -183,6 +186,7 @@ class Authentification_tcp(Tk):
         self.__quit = True #permet de verifier si l'utilisateur a quitter la fenetre pour le renvoyer sur la page de connection
         self.__socket.deconnect_tcp() #pour deconnecter le socket proprement
         self.destroy()
+        main()
     
     def close(self)->None:
         """ferme la fenetre
@@ -245,6 +249,8 @@ class Ihm(Tk):
         self.__param2.grid(row=3,column=0,sticky="nswe")
         self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton",command=self.deconnection)
         self.__param3.grid(row=4,column=0,sticky="nswe")
+        ##close window##
+        self.protocol('WM_DELETE_WINDOW', self.deconnection)
     
     def profil(self)->None:
         """ouvre la page de profil
@@ -287,7 +293,7 @@ class profil(Toplevel):
         super().__init__()
         self.__parent = parent
         self.__me = self.__parent.get_sockert().get_my_name()
-        self.__contact = self.__parent.get_sockert().get_contact()
+        #self.__contact = self.__parent.get_sockert().get_contact()
         #setting title
         self.title("RTPhone/login")
         #setting w indow size
@@ -314,8 +320,8 @@ class profil(Toplevel):
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
         self.__label_nom = ttk.Label(self.__main,text=self.__me,style="danger.TLabel",font=("Courier", 50))
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
-        self.__label_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel",font=("Courier", 50))
-        self.__label_contact.grid(row=2,column=0,sticky="nswe")
+        #self.__label_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel",font=("Courier", 50))
+        #self.__label_contact.grid(row=2,column=0,sticky="nswe")
         self.__quit = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__quit.grid(row=5,column=0,sticky="nswe")
         
@@ -334,7 +340,7 @@ class appel(Toplevel):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
         self.__socket = parent.get_sockert()
-        self.__contact = self.__socket.get_contact()
+        #self.__contact = self.__socket.get_contact()
         self.__list_2_call = []
         self.title(self.__title)
         #setting w indow size
@@ -371,8 +377,8 @@ class appel(Toplevel):
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
-        self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
-        self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
+        #self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
+        #self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
         
         
@@ -401,9 +407,7 @@ class appel(Toplevel):
         """appel les personne dans la liste et ouvre une fenetre d'appel
         """
         try:
-            print("jeanne")
             self.__socket.appelle(self.__list_2_call)
-            print("aux")
             appel_en_cour(self).mainloop()
         except Exception as ex:
             self.__label_erreur.config(text=f"erreur : {ex}")
@@ -498,7 +502,7 @@ class hist(Toplevel):
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
         self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__btn_quitter.grid(row=1,column=0,sticky="nswe")
-        self.__label_appel = ttk.Label(self.__main,text=f'{self.get_histry}',style="danger.TLabel")
+        self.__label_appel = ttk.Label(self.__main,text=f'{self.get_history}',style="danger.TLabel")
         self.__label_appel.grid(row=1,column=0,sticky="nswe")
         
     def close(self)->None:
@@ -506,7 +510,7 @@ class hist(Toplevel):
         """
         self.destroy()
         
-    def get_histry(self)->None:
+    def get_history(self)->None:
         """retourne l'historique des appel
         """
         historique : str = ""
@@ -514,6 +518,8 @@ class hist(Toplevel):
             reader = csv.reader(file, delimiter='\n')
             for row in reader:
                 historique += f"{row[0]}\n"
+        self.__label_appel.config(text=historique)
+
 
 
 class appel_entrant():
@@ -540,11 +546,11 @@ class appel_entrant():
         ##frames_name##
         self.__nb_name = len(self.__who_call)
         self.__list_name = self.__who_call
-        for i in range(0,self.__nb_name,2):
-            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i],style="danger.TLabel")
-            self.__label_name.grid(row=i,column=0,sticky="nswe")
-            self.__label_name = ttk.Label(self.__frams_name,text=self.__list_name[i+1],style="danger.TLabel")
-            self.__label_name.grid(row=i,column=1,sticky="nswe")
+        self.__str_name : str = "|"
+        for i in self.__list_name:
+            self.__str_name += f" {i} |"
+        self.__label_name = ttk.Label(self.__frams_name,text=self.__str_name,style="danger.TLabel")
+        self.__label_name.grid(row=0,column=0,sticky="nswe")
         ##frames_btn##
         self.__btn_accepter = ttk.Button(self.__frams_btn,text="accepter",style="danger.TButton",command=self.accept)
         self.__btn_accepter.grid(row=0,column=0,sticky="nswe")
@@ -569,7 +575,7 @@ class appel_entrant():
 # ========== fonction ==========
 def reception_appel(ip_server,a,b,c,d,e,f,g,h)->None:
     """fonction qui permet de lancer la page d'appel entrant
-    info : les argument a à h sont la car le module args du thread decompose mon str et je ne sais pas palier se probléme
+    info : les argument a à h sont la car le module args du thread decompose mon str et je ne sais pas palier a se probléme
     """
     ip_server : str = ip_server+a+b+c+d+e+f+g+h
     print(ip_server)
@@ -599,8 +605,8 @@ def main():
     if quitt == True:
         main()
     else:
-        #ip_server : str = socket_tcp.get_ip()
-        #Thread(target=reception_appel,args=ip_server).start()
+        ip_server : str = socket_tcp.get_ip()
+        Thread(target=reception_appel,args=ip_server).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 

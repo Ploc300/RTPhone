@@ -56,7 +56,6 @@ class Client_udp(Thread):
                                 except ConnectionResetError:
                                         data = b''
                                 if data != b'':
-                                        print(data)
                                         self.__stream_recepteur.write(data)
                 except OSError:
                         print("erreur lors de la reception")
