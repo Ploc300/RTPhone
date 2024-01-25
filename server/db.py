@@ -168,20 +168,13 @@ class Database:
         _return: list = []
         try:
             self.__cursor.execute(f'SELECT name,status FROM users')
-<<<<<<< Updated upstream
-            _return = self.__cursor.fetchall() 
-=======
             _return = self.__cursor.fetchall()
             debug(f'db.py: Retrieved status')
->>>>>>> Stashed changes
         except Exception as e:
             debug(f'Failed to retrieved status')
             debug_verbose(e)
         return _return
     
-<<<<<<< Updated upstream
-    #ajoute un contact au client
-=======
     def change_status(self, status: str, username: str):
         try:
             self.__cursor.execute(f'UPDATE users SET status = ', (status), 'WHERE name =',(username))
@@ -191,7 +184,6 @@ class Database:
             debug(f'Failed to changed status')
             debug_verbose(e)
         
->>>>>>> Stashed changes
     def add_contact(self, username: str, contact: str):
         _return: bool = False
         try:
