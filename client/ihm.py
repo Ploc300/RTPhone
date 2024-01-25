@@ -5,6 +5,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import Tk,PhotoImage, Toplevel, Button
 import os
+import csv
 # ========== Class ==========
 ##connection tcp##
 class Connection_tcp(Tk):
@@ -240,7 +241,7 @@ class Ihm(Tk):
         self.__paramp.grid(row=0,column=0,columnspan=4,sticky="nswe")
         self.__param1 = ttk.Button(self.__main,text="appel",style="danger.TButton",command=self.appel)
         self.__param1.grid(row=1,column=0,sticky="nswe")
-        self.__param2 = ttk.Button(self.__main,text="contact",style="danger.TButton")
+        self.__param2 = ttk.Button(self.__main,text="historique appel",style="danger.TButton",command=self.hist)
         self.__param2.grid(row=3,column=0,sticky="nswe")
         self.__param3 = ttk.Button(self.__main,text="deconnexion",style="danger.TButton",command=self.deconnection)
         self.__param3.grid(row=4,column=0,sticky="nswe")
@@ -258,11 +259,11 @@ class Ihm(Tk):
         self.__appel = appel(self)
         self.__appel.mainloop()
     
-    def contact(self)->None:
-        """ouvre la page de contact
+    def hist(self)->None:
+        """ouvre la page de historique d'appel
         """
-        self.__contact = contact(self)
-        self.__contact.mainloop()
+        self.__historique = hist(self)
+        self.__historique.mainloop()
     
     def deconnection(self):
         """deconnecte le socket proprement et renvoie l'utilisateur sur la page de connection
@@ -286,6 +287,7 @@ class profil(Toplevel):
         super().__init__()
         self.__parent = parent
         self.__me = self.__parent.get_sockert().get_my_name()
+        self.__contact = self.__parent.get_sockert().get_contact()
         #setting title
         self.title("RTPhone/login")
         #setting w indow size
@@ -312,6 +314,8 @@ class profil(Toplevel):
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
         self.__label_nom = ttk.Label(self.__main,text=self.__me,style="danger.TLabel",font=("Courier", 50))
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
+        self.__label_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel",font=("Courier", 50))
+        self.__label_contact.grid(row=2,column=0,sticky="nswe")
         self.__quit = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__quit.grid(row=5,column=0,sticky="nswe")
         
@@ -329,8 +333,8 @@ class appel(Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
-        self.__parent = parent
         self.__socket = parent.get_sockert()
+        self.__contact = self.__socket.get_contact()
         self.__list_2_call = []
         self.title(self.__title)
         #setting w indow size
@@ -367,6 +371,8 @@ class appel(Toplevel):
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
+        self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
+        self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
         
         
@@ -462,13 +468,12 @@ class appel_en_cour(Toplevel):
         self.__parent.racroche()
         self.destroy()
 
-class contact(Toplevel):
+class hist(Toplevel):
     """page de contact, affiche les contact de l'utilisateur"""
     def __init__(self,socket) -> None:
         super().__init__()
-        self.__contact = socket.get_contact()
         #setting title
-        self.title("RTPhone/login")
+        self.title("RTPhone/historique")
         #setting w indow size
         self.__screenwidth = self.winfo_screenwidth()
         self.__screenheight = self.winfo_screenheight()
@@ -489,11 +494,26 @@ class contact(Toplevel):
         self.__titre = ttk.Label(self.__navbar,text="RTPhone",style="danger.TLabel",font=("Courier", 140))
         self.__titre.grid(row=0,column=1,sticky="nswe")
         ##main##
-        self.__sous_titre = ttk.Label(self.__main,text="profil",style="danger.TLabel",font=("Courier", 100))
+        self.__sous_titre = ttk.Label(self.__main,text="Historique des appel",style="danger.TLabel",font=("Courier", 100))
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
-        self.__label_nom = ttk.Label(self.__main,text=f"contact : {self.__contact} ",style="danger.TLabel")
-        self.__label_nom.grid(row=1,column=0,sticky="nswe")
+        self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
+        self.__btn_quitter.grid(row=1,column=0,sticky="nswe")
+        self.__label_appel = ttk.Label(self.__main,text=f'{self.get_histry}',style="danger.TLabel")
+        self.__label_appel.grid(row=1,column=0,sticky="nswe")
         
+    def close(self)->None:
+        """ferme la fenetre
+        """
+        self.destroy()
+        
+    def get_histry(self)->None:
+        """retourne l'historique des appel
+        """
+        historique : str = ""
+        with open('mon_fichier.csv', 'r') as file:
+            reader = csv.reader(file, delimiter='\n')
+            for row in reader:
+                historique += f"{row[0]}\n"
 
 
 class appel_entrant():
@@ -547,10 +567,11 @@ class appel_entrant():
 
 
 # ========== fonction ==========
-def appel_entrant(ip_server)->None:
+def reception_appel(ip_server,a,b,c,d,e,f,g,h)->None:
     """fonction qui permet de lancer la page d'appel entrant
-    info : pas encore inplementer car pas tester
+    info : les argument a à h sont la car le module args du thread decompose mon str et je ne sais pas palier se probléme
     """
+    ip_server : str = ip_server+a+b+c+d+e+f+g+h
     print(ip_server)
     socket : reception = reception(ip_server,5003)
     while socket.get_appel() == False:
@@ -579,7 +600,7 @@ def main():
         main()
     else:
         #ip_server : str = socket_tcp.get_ip()
-        #Thread1 = Thread(target=appel_entrant,args=ip_server).start()
+        #Thread(target=reception_appel,args=ip_server).start()
         ihm : Ihm = Ihm(socket_tcp)
         ihm.mainloop()
 
@@ -590,7 +611,7 @@ if __name__ == "__main__":
 88888888ba  888888888888  88888888ba   88                                                      ,ad8888ba,   88  88                                   
 88      "8b      88       88      "8b  88                                                     d8"'    `"8b  88  ""                            ,d     
 88      ,8P      88       88      ,8P  88                                                    d8'            88                                88     
-88aaaaaa8P'      88       88aaaaaa8P'  88,dPPYba,    ,adPPYba,   8b,dPPYba,    ,adPPYba,     88             88  88   ,adPPYba,  8b,dPPYba,  MM88MMM  
+88aaaaaa8P'      88       88aaaaaa8P'  88,dPPYba,    ,adPPYba,   8b,dPPYba,    ,adPPYba,     88             88  88   ,adPPYba,  8b,dPPYba,  MMALOMM  
 88    88'        88       88      '    88P'    "8a  a8"     "8a  88P'   `"8a  a8P_____88     88             88  88  a8P_____88  88P'   `"8a   88     
 88    `8b        88       88           88       88  8b       d8  88       88  8PP      "     Y8,            88  88  8PP         88       88   88     
 88     `8b       88       88           88       88  "8a,   ,a8"  88       88  "8b,   ,aa      Y8a.    .a8P  88  88  "8b,   ,aa  88       88   88,    

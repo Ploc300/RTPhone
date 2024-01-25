@@ -4,6 +4,7 @@ import sys
 import json
 import appel_udp
 import reception_appel
+import datetime
 
 # ========== Class ==========
 
@@ -16,7 +17,7 @@ class Client_tcp:
         self.__Client_udp : appel_udp.Client_udp = None
         self.__socket_client : socket = None
         self.__token: str = None
-        self.__my_name: str = ""
+        self.__my_name: str = "unknown"
         self.__erreur_con : str = None
         self.__erreur_auth : str = None
         self.__reception_appel : str = None
@@ -114,6 +115,15 @@ class Client_tcp:
         contacte = self.receive()
         return contacte
     
+    def set_history_csv(self, log : str)->None:
+        """permet de sauvegarder l'historique des appels dans un fichier csv"""
+        try:
+            with open(f"./client/history.csv", "a") as file:
+                file.write('appelant, appeler, date, erreur\n')
+                file.write(log)
+        except Exception as ex:
+            print(ex)
+        
     def appelle(self, usernames: list)->list:
         """permet d'appeller un utilisateur
         """
@@ -121,9 +131,10 @@ class Client_tcp:
         try:
             self.envoie(f'11 {json.dumps(data)}')
             self.__Client_udp = appel_udp.Client_udp(self.__ip_serveur, 5001, 5002)
-            print(type(self.__Client_udp))
             self.__Client_udp.start()
+            self.set_history_csv(f"{self.__my_name}, {usernames}, {datetime.datetime.now()}\n")
         except Exception as ex:
+            self.set_history_csv(f"{self.__my_name}, {usernames}, {datetime.datetime.now()}, {ex}\n")
             print(ex)
     
     def stop_appel(self)->None:
@@ -142,6 +153,7 @@ class Client_tcp:
     def get_ip(self)->str:
         """permet de recuperer l'ip du serveur"""
         return self.__ip_serveur
+
 
 
 
