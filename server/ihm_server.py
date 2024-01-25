@@ -1,5 +1,5 @@
 # ===== Import =====
-from tkinter import Tk, Toplevel, ttk, PhotoImage
+from tkinter import Tk, Toplevel, ttk, PhotoImage, StringVar
 from ttkbootstrap import Style
 from server import ListeningService, ClientHandler, ClientManager, stop_everything
 from threading import Thread
@@ -257,15 +257,18 @@ class TestAppel(Toplevel):
 
         self.__frame_buttons = ttk.Frame(self)
 
-        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= lambda: test_appel(list(self.__ip_list)))
+        self.__button_start = ttk.Button(self.__frame_buttons, text='Démarrer', style='TButton', command= lambda: self.start_appel())
         self.__button_start.grid(row=0, column=1, sticky='ew')
 
-        self.__entry_ip_list = ttk.Entry(self.__frame_buttons, style='TEntry', textvariable=self.__ip_list)
+        self.__entry_ip_list = ttk.Entry(self.__frame_buttons, style='TEntry')
         self.__entry_ip_list.insert(0, "['127.0.0.1','']")
         self.__entry_ip_list.grid(row=0, column=0, sticky='ew')
 
         self.__frame_buttons.grid(row=0, column=0, sticky='ew')
 
+    def start_appel(self):
+        self.__ip_list = self.__entry_ip_list.get().replace(' ', '').replace('"', '').replace("'", '').replace('[', '').replace(']', '').split(',')
+        test_appel(self.__ip_list)
 
     def close(self):
         self.__parent._Ihm__is_fen_test_appel = False
