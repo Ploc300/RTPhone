@@ -97,7 +97,7 @@ class Client_tcp:
     #renvoie la liste de tout les utilisateurs connectés
     def get_connected_clients(self)->list:
         data: dict = {'token': self.__token}
-        self.envoie(f'6 {json.dumps(data)}')
+        self.envoie(f'06 {json.dumps(data)}')
         contacte = self.receive()
         return contacte
 
@@ -112,7 +112,7 @@ class Client_tcp:
     def get_contact(self)->list:
         data: dict = {'token': self.__token, 'username': self.__my_name}
         self.envoie(f'12 {json.dumps(data)}')
-        contacte = self.receive()
+        contacte = self.receive()[2:]
         return contacte
     
     def appelle(self, usernames: list)->list:
@@ -142,13 +142,13 @@ class Client_tcp:
 # ========== Main ==========
 def main():
     # declaration des variables
-    ip_serveur: str = '172.20.10.3'
+    ip_serveur: str = '127.0.0.1'
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)
     client.connect_tcp()
     client.auth('test', 'test')
-    print(client.get_contact())
+    print(client.get_connected_clients())
     client.deconnect_tcp()
 
 

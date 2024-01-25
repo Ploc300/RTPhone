@@ -17,7 +17,7 @@ Interémédiare des appels | Oui |
 IHM | Oui |
 Softphone | |
 Connexion au serveur | Oui |
-Gestion des contacts | Non |
+Gestion des contacts | Oui |
 Fonctions d'appel de base | ? |
 IHM | Oui |
 Envoi de messages | Non |

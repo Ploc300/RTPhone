@@ -168,17 +168,34 @@ class Database:
         _return: list = []
         try:
             self.__cursor.execute(f'SELECT name,status FROM users')
+<<<<<<< Updated upstream
             _return = self.__cursor.fetchall() 
+=======
+            _return = self.__cursor.fetchall()
+            debug(f'db.py: Retrieved status')
+>>>>>>> Stashed changes
         except Exception as e:
-            debug(f'Failed to get status')
+            debug(f'Failed to retrieved status')
             debug_verbose(e)
         return _return
     
+<<<<<<< Updated upstream
     #ajoute un contact au client
+=======
+    def change_status(self, status: str, username: str):
+        try:
+            self.__cursor.execute(f'UPDATE users SET status = ', (status), 'WHERE name =',(username))
+            self.__cursor.fetchone()
+            debug(f'db.py: status changed')
+        except Exception as e:
+            debug(f'Failed to changed status')
+            debug_verbose(e)
+        
+>>>>>>> Stashed changes
     def add_contact(self, username: str, contact: str):
         _return: bool = False
         try:
-            self.__cursor.execute('INSERT INTO Contats (contacts) VALUES ', (contact),"WHERE user =",(username))
+            self.__cursor.execute('INSERT INTO Contats (contacts) VALUES ', (contact),'WHERE user =',(username))
             debug(f'db.py: Added contact')
         except Exception as e:
             debug(f'db.py: Failed to add contact')
@@ -189,7 +206,7 @@ class Database:
     def get_contact(self, username: str):
         _return: list = []
         try:
-            self.__cursor.execute('SELECT contacts FROM Contacts WHERE user=',username)
+            self.__cursor.execute(f"SELECT contacts FROM Contacts WHERE user='{username}'")
             _return = self.__cursor.fetchall()
             debug(f'db.py: Retrieved all contacts')
         except Exception as e:
