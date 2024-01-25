@@ -580,9 +580,10 @@ def reception_appel(ip_server,a,b,c,d,e,f,g,h)->None:
     info : les argument a à h sont la car le module args du thread decompose mon str et je ne sais pas palier a se probléme
     """
     ip_server : str = ip_server+a+b+c+d+e+f+g+h
-    print(ip_server)
     socket : reception = reception(ip_server,5003)
-    socket.recevoir()
+    while socket.get_appel() == False:
+        print("attente d'appel")
+        socket.recevoir()
     who : list = socket.get_who_call()
     appel_entrant(who,socket).mainloop()
 

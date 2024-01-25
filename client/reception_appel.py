@@ -21,21 +21,19 @@ class reception():
         
         def recevoir(self):
             self.__socket_echange.bind(('', self.__port_client))
-            while self.__connexion and not self.__appeller:
-                print("attente d'un appel")
-                data, addr = self.__socket_echange.recvfrom(512)
-                code,data = data.decode('utf-8').split(' ',1)
-                if code == '14':
-                    self.__who_call = loads(data)
-                    if not self.__appeller:
-                        if self.__accepter:
-                            self.__socket_echange.sendto(b'15', (self.__ip_serveur, self.__port_serveur))
-                            self.__appell = appel_udp.Client_udp(self.__ip_serveur, self.__port_serveur, self.__port_client).start()
-                            self.__appeller = True
-                        else:
-                            self.__socket_echange.sendto(b'16', (self.__ip_serveur, self.__port_serveur))
+            data, addr = self.__socket_echange.recvfrom(512)
+            code,data = data.decode('utf-8').split(' ',1)
+            if code == '14':
+                self.__who_call = loads(data)
+                if not self.__appeller:
+                    if self.__accepter:
+                        self.__socket_echange.sendto(b'15', (self.__ip_serveur, self.__port_serveur))
+                        self.__appell = appel_udp.Client_udp(self.__ip_serveur, self.__port_serveur, self.__port_client).start()
+                        self.__appeller = True
                     else:
                         self.__socket_echange.sendto(b'16', (self.__ip_serveur, self.__port_serveur))
+                else:
+                    self.__socket_echange.sendto(b'16', (self.__ip_serveur, self.__port_serveur))
         
         def accepte_appel(self)->None:
             """permet d'accepter un appel entrant"""
