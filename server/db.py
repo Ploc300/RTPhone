@@ -154,11 +154,19 @@ class Database:
             debug_verbose(f'db.py: {e}')
         return _return
     
+    def change_status(self,status,username):
+        try:
+            self.__cursor.execute(f'UPDATE users SET status =',(status),'WHERE user =',(username))
+            debug(f'Status update')
+        except Exception as e:
+            debug(f'Failed to update status')
+            debug_verbose(e)   
+            
     def connected_client(self):
-        _return: bool = False
+        _return: list = []
         try:
             self.__cursor.execute(f'SELECT name,status FROM users')
-            _return = True if self.__cursor.fetchall() else False
+            _return = self.__cursor.fetchall() 
         except Exception as e:
             debug(f'Failed to get status')
             debug_verbose(e)

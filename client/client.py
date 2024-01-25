@@ -94,18 +94,21 @@ class Client_tcp:
         mail = self.receive()
         return mail
     
-    def get_connected_clients(self):
+    #renvoie la liste de tout les utilisateurs connectés
+    def get_connected_clients(self)->list:
         data: dict = {'token': self.__token}
         self.envoie(f'6 {json.dumps(data)}')
         contacte = self.receive()
         return contacte
 
+    #ajoute un contact à la bdd 
     def add_contact(self)->bool:
         data: dict = {'token': self.__token, 'username': self.__my_name, 'contact': 'test'}
         self.envoie(f'13 {json.dumps(data)}')
         contacte = self.receive()
         return contacte
 
+    #renvoie la liste de tout les contacts du client
     def get_contact(self)->list:
         data: dict = {'token': self.__token, 'username': self.__my_name}
         self.envoie(f'12 {json.dumps(data)}')
