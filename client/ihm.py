@@ -294,7 +294,7 @@ class profil(Toplevel):
         super().__init__()
         self.__parent = parent
         self.__me = self.__parent.get_sockert().get_my_name()
-        #self.__contact = self.__parent.get_sockert().get_contact()
+        self.__contact = self.__parent.get_sockert().get_contact()
         #setting title
         self.title("RTPhone/login")
         #setting w indow size
@@ -321,8 +321,8 @@ class profil(Toplevel):
         self.__sous_titre.grid(row=0,column=0,columnspan=4,sticky="nswe")
         self.__label_nom = ttk.Label(self.__main,text=self.__me,style="danger.TLabel",font=("Courier", 50))
         self.__label_nom.grid(row=1,column=0,sticky="nswe")
-        #self.__label_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel",font=("Courier", 50))
-        #self.__label_contact.grid(row=2,column=0,sticky="nswe")
+        self.__label_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel",font=("Courier", 50))
+        self.__label_contact.grid(row=2,column=0,sticky="nswe")
         self.__quit = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__quit.grid(row=5,column=0,sticky="nswe")
         
@@ -341,7 +341,7 @@ class appel(Toplevel):
         super().__init__(parent)
         self.__title = f'{self.master.title()}: {self.__class__.__name__}'
         self.__socket = parent.get_sockert()
-        #self.__contact = self.__socket.get_contact()
+        self.__contact = self.__socket.get_contact()
         self.__list_2_call = []
         self.title(self.__title)
         #setting w indow size
@@ -378,8 +378,8 @@ class appel(Toplevel):
         self.__btn_appel.grid(row=2,column=2,sticky="nswe")
         self.__btn_quitter = Button(self.__main,text="quitter",command=self.close,bg="red")
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
-        #self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
-        #self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
+        self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
+        self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
         self.__btn_ajouter.bind("<Return>",self.set_who_call)
         
@@ -575,11 +575,11 @@ class appel_entrant():
 
 
 # ========== fonction ==========
-def reception_appel(ip_server,a,b,c,d,e,f,g,h)->None:
+def reception_appel(ip_server,a,b,c,d,e,f,g,h,i,j)->None:
     """fonction qui permet de lancer la page d'appel entrant
     info : les argument a à h sont la car le module args du thread decompose mon str et je ne sais pas palier a se probléme
     """
-    ip_server : str = ip_server+a+b+c+d+e+f+g+h
+    ip_server : str = ip_server+a+b+c+d+e+f+g+h+i+j
     socket : reception = reception(ip_server,5003)
     while socket.get_appel() == False:
         print("attente d'appel")
