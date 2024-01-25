@@ -22,6 +22,7 @@ class reception():
         def recevoir(self):
             self.__socket_echange.bind(('', self.__port_client))
             while self.__connexion and not self.__appeller:
+                print("attente d'un appel")
                 data, addr = self.__socket_echange.recvfrom(512)
                 code,data = data.decode('utf-8').split(' ',1)
                 if code == '14':
