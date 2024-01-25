@@ -26,5 +26,8 @@ CallRequest: 5003
 - 14: Call Request
 - 15: Call Request Accepted
 - 16: Call Request Refused
+- 22: retour get contact
+- 23: retour add contact
+- 26: retour get connected client
 - 99: Conversation not initialized
 - 99: Conversation not initialized

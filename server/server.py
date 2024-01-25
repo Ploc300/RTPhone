@@ -228,6 +228,7 @@ class ClientHandler(Thread):
                                 db.add_client_ip_token(
                                     message['username'], self.__socket_echange.getpeername()[0], data['token'])
                                 self.send(f'03 {dumps(data)}')
+                                db.change_status('active',message['username'])
                             else:
                                 debug(ERROR.format(
                                     error=f'server.py: Failed to authenticate client'))
@@ -265,7 +266,8 @@ class ClientHandler(Thread):
                     case '06':  # Demande des clients connecter
                         db = Database('STATUS')
                         debug(INFO.format(info='client'))
-                        db.connected_client()
+                        status = db.connected_client()
+                        self.send(f'26 {dumps(status)}')
 
                     case '11':  # Demande d'appel
                         debug(INFO.format(info=f'server.py: Client asked for call'))
@@ -296,13 +298,16 @@ class ClientHandler(Thread):
                     case '12': # 
                         db = Database('Retrieve contacts')
                         debug(INFO.format(info='Retrieve contacts'))
-                        db.get_contact()
+                        contacts = db.get_contact(message['username'])
+                        self.send(f'22 {dumps(contacts)}')
+
 
                     case '13': # 
                         db = Database('Add contact')
                         debug(INFO.format(info='Add contact'))
-                        db.add_contact()
-
+                        contact = db.add_contact(message['username','contact'])
+                        self.send(f'23 {dumps(contact)}')
+                        
                     
                     case _:
                         pass
@@ -324,6 +329,7 @@ class ClientHandler(Thread):
         """
         db = Database("Client logout")
         try:
+            
             db.remove_client_ip(self.__socket_echange.getpeername()[0])
         except Exception as e:
             debug(ERROR.format(error=f'server.py: Failed to remove client IP'))

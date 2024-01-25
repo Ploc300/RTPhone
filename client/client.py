@@ -98,7 +98,30 @@ class Client_tcp:
         """permet de recuperer l'erreur d'authentification"""
         return self.__erreur_auth
     
+    def change_phone(self)->None:
+        self.send('03')
+        phone = self.receive()
+        return phone
 
+    def get_mail(self)->None:
+        self.send('04')
+        mail = self.receive()
+        return mail
+    
+    #renvoie la liste de tout les utilisateurs connectés
+    def get_connected_clients(self)->list:
+        data: dict = {'token': self.__token}
+        self.envoie(f'06 {json.dumps(data)}')
+        contacte = self.receive()
+        return contacte
+
+    #ajoute un contact à la bdd 
+    def add_contact(self)->bool:
+        data: dict = {'token': self.__token, 'username': self.__my_name, 'contact': 'test'}
+        self.envoie(f'13 {json.dumps(data)}')
+        contacte = self.receive()
+        return contacte
+      
     def add_contact(self)->None:
         """permet d'ajouter un contacte
         info : non implementer dans l'ihm
@@ -107,12 +130,13 @@ class Client_tcp:
         contacts = self.receive()
         return contacts
 
+    #renvoie la liste de tout les contacts du client
     def get_contact(self)->list:
         """permet de recuperer les contacte de l'utilisateur
         """
         data: dict = {'token': self.__token, 'username': self.__my_name}
         self.envoie(f'12 {json.dumps(data)}')
-        contacte = self.receive()
+        contacte = self.receive()[2:]
         return contacte
     
     def set_history_csv(self, log : str)->None:
@@ -162,7 +186,7 @@ class Client_tcp:
 def main():
     """fonction de test"""
     # declaration des variables
-    ip_serveur: str = '172.20.10.3'
+    ip_serveur: str = '127.0.0.1'
     port_serveur: int = 5000
     client: Client_tcp
     client = Client_tcp(ip_serveur, port_serveur)

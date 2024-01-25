@@ -154,36 +154,66 @@ class Database:
             debug_verbose(f'db.py: {e}')
         return _return
     
-    def connected_client(self):
-        _return: bool = False
+    #change le status du client
+    def change_status(self,status,username):
         try:
-            self.__cursor.execute(f'SELECT status FROM users')
-            _return = True if self.__cursor.fetchall() else False
+            self.__cursor.execute(f'UPDATE users SET status =',(status),'WHERE user =',(username))
+            debug(f'Status update')
         except Exception as e:
-            debug(f'Failed to get status')
+            debug(f'Failed to update status')
+            debug_verbose(e)   
+
+    #renvoie la liste de tout les clients connectés sur le serveur       
+    def connected_client(self):
+        _return: list = []
+        try:
+            self.__cursor.execute(f'SELECT name,status FROM users')
+<<<<<<< Updated upstream
+            _return = self.__cursor.fetchall() 
+=======
+            _return = self.__cursor.fetchall()
+            debug(f'db.py: Retrieved status')
+>>>>>>> Stashed changes
+        except Exception as e:
+            debug(f'Failed to retrieved status')
             debug_verbose(e)
         return _return
     
+<<<<<<< Updated upstream
+    #ajoute un contact au client
+=======
+    def change_status(self, status: str, username: str):
+        try:
+            self.__cursor.execute(f'UPDATE users SET status = ', (status), 'WHERE name =',(username))
+            self.__cursor.fetchone()
+            debug(f'db.py: status changed')
+        except Exception as e:
+            debug(f'Failed to changed status')
+            debug_verbose(e)
+        
+>>>>>>> Stashed changes
     def add_contact(self, username: str, contact: str):
         _return: bool = False
         try:
-            self.__cursor.execute('INSERT INTO Contats (contacts) VALUES ', (contact),"WHERE user =",(username))
+            self.__cursor.execute('INSERT INTO Contats (contacts) VALUES ', (contact),'WHERE user =',(username))
             debug(f'db.py: Added contact')
         except Exception as e:
             debug(f'db.py: Failed to add contact')
             debug_verbose(f'db.py: {e}')
         return _return
     
+    #renvoie tout les contacts du client sous forme d'une liste
     def get_contact(self, username: str):
         _return: list = []
         try:
-            self.__cursor.execute('SELECT contacts FROM Contacts WHERE user=',username)
+            self.__cursor.execute(f"SELECT contacts FROM Contacts WHERE user='{username}'")
             _return = self.__cursor.fetchall()
             debug(f'db.py: Retrieved all contacts')
         except Exception as e:
             debug(f'db.py: Failed to retrieve all contacts')
             debug_verbose(f'db.py: {e}')
         return _return
+    
     def add_client_ip_token(self, username: str, ip: str, token: str) -> bool:
         _return: bool = False
         try:
