@@ -154,6 +154,7 @@ class Database:
             debug_verbose(f'db.py: {e}')
         return _return
     
+    #change le status du client
     def change_status(self,status,username):
         try:
             self.__cursor.execute(f'UPDATE users SET status =',(status),'WHERE user =',(username))
@@ -161,7 +162,8 @@ class Database:
         except Exception as e:
             debug(f'Failed to update status')
             debug_verbose(e)   
-            
+
+    #renvoie la liste de tout les clients connectés sur le serveur       
     def connected_client(self):
         _return: list = []
         try:
@@ -172,6 +174,7 @@ class Database:
             debug_verbose(e)
         return _return
     
+    #ajoute un contact au client
     def add_contact(self, username: str, contact: str):
         _return: bool = False
         try:
@@ -182,6 +185,7 @@ class Database:
             debug_verbose(f'db.py: {e}')
         return _return
     
+    #renvoie tout les contacts du client sous forme d'une liste
     def get_contact(self, username: str):
         _return: list = []
         try:
@@ -192,6 +196,7 @@ class Database:
             debug(f'db.py: Failed to retrieve all contacts')
             debug_verbose(f'db.py: {e}')
         return _return
+    
     def add_client_ip_token(self, username: str, ip: str, token: str) -> bool:
         _return: bool = False
         try:
