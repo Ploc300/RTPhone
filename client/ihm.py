@@ -56,7 +56,7 @@ class Connection_tcp(Tk):
         self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.close)
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
-        
+        self.__btn_connexion.bind("<Return>",self.connection)
 
     def connection(self)->None:
         """connection au serveur : ouvre une connection tcp avec le serveur
@@ -143,6 +143,7 @@ class Authentification_tcp(Tk):
         self.__btn_quitter = ttk.Button(self.__main,text="quitter",style="danger.TButton",command=self.__btn_quitter)
         self.__btn_quitter.grid(row=3,column=2,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="",style="danger.TLabel")
+        self.__btn_connexion.bind("<Return>",self.auth)
         ##close window##
         self.protocol('WM_DELETE_WINDOW', self.__btn_quitter)
         
@@ -380,6 +381,7 @@ class appel(Toplevel):
         #self.__lbl_contact = ttk.Label(self.__main,text=f"contact : {self.__contact}",style="danger.TLabel")
         #self.__lbl_contact.grid(row=4,column=0,columnspan=4,sticky="nswe")
         self.__label_erreur = ttk.Label(self.__main,text="")
+        self.__btn_ajouter.bind("<Return>",self.set_who_call)
         
         
     def set_who_call(self)->None:
