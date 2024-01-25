@@ -582,9 +582,7 @@ def reception_appel(ip_server,a,b,c,d,e,f,g,h)->None:
     ip_server : str = ip_server+a+b+c+d+e+f+g+h
     print(ip_server)
     socket : reception = reception(ip_server,5003)
-    while socket.get_appel() == False:
-        print("wait")
-        socket.recevoir()
+    socket.recevoir()
     who : list = socket.get_who_call()
     appel_entrant(who,socket).mainloop()
 
