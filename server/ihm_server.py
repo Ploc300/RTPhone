@@ -45,7 +45,7 @@ class Ihm(Tk):
         
 
         self.iconbitmap('logo/RTPhone_logo.ico')
-        self.resizable(RESIZABLE, RESIZABLE)
+        self.resizable(resizable, resizable)
         self.title(self.__title)
         self.geometry(f'{self.__width}x{self.__height}')
         self.protocol('WM_DELETE_WINDOW', self.close) # Handle the close native close button
