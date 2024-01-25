@@ -30,4 +30,3 @@ CallRequest: 5003
 - 23: retour add contact
 - 26: retour get connected client
 - 99: Conversation not initialized
-- 99: Conversation not initialized
