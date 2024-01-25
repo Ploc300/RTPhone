@@ -50,10 +50,8 @@ class CallServer:
 
             :return: None
         """
-        print("Sending data")
         if not self.__sending_socket is None:
             for client in self.__clients:
-                print(client)
                 if client != source:
                     self.__sending_socket.sendto(data, (client, 5002))
 
@@ -79,7 +77,7 @@ class CallServer:
                     else:
                         Thread(target=self.send, args=(buffer, addr[0])).start()
                     debug(f'callserver.py: {addr[0]} sent {len(buffer)} bytes')
-                    # debug_verbose(f'callserver.py: {buffer}')
+                    debug_verbose(f'callserver.py: {buffer}')
             else:
                 debug(ERROR.format(error=f'callserver.py: Failed to receive data'))
 
@@ -240,9 +238,11 @@ def test_appel(ip_list: list, event=None) -> None:
         :return: None
     """
     clients = set()
+    print(ip_list)
     for ip in ip_list:
         clients.add(ip)
-    appel = CallServer(clients).start()
+    
+    CallServer(clients).start()
     input('Press enter to stop')
         
         
