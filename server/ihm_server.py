@@ -42,7 +42,6 @@ class Ihm(Tk):
         self.__width = width
         self.__title = title
         self.__bg_image: PhotoImage = PhotoImage(file='logo/RTPhone_logo.png')
-        
 
         self.iconbitmap('logo/RTPhone_logo.ico')
         self.resizable(resizable, resizable)
